@@ -1,8 +1,8 @@
 import io
 
 # Number of word vectors to grab from pre-trained vectors. 
-# Limited to 300,000 for debugging
-NUM_WORDS = 300000
+# Limited to 100,000 for debugging
+NUM_WORDS = 100000
 
 # Maximum length of text to process
 MAX_STR_LENGTH = 30
@@ -51,11 +51,11 @@ class InputProcessor:
     # does not exist in the dictionary, returns a list of 0's
     def get_vector(self, word):
         if (word in self.vector_data):
-            print(word, "is in the dictionary")
+            # print(word, "is in the dictionary")
             return list(self.vector_data[word])     # Must convert map object to list before accessing
         else:
             # TODO: Should this return an empty list or a random vector? (check literature)
-            print(word, "is not in the dictionary")
+            # print(word, "is not in the dictionary")
             empty = []
             for i in range(300):
                 empty.append(0.0)
