@@ -12,3 +12,8 @@ class Token:
     # Returns the string stored in this token
     def get_word(self):
         return self.word
+    
+
+    # Tokens are printed as just their word string
+    def __repr__(self):
+        return self.word

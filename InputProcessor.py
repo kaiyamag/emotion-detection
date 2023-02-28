@@ -49,10 +49,10 @@ class InputProcessor:
 
     # Returns a 300-D vector (as a list) of floats corresponding to the given word. If the word
     # does not exist in the dictionary, returns a list of 0's
-    def get_vector(self, word):
-        if (word in self.vector_data):
+    def get_vector(self, token):
+        if (token.get_word() in self.vector_data):
             # print(word, "is in the dictionary")
-            return list(self.vector_data[word])     # Must convert map object to list before accessing
+            return list(self.vector_data[token.get_word()])     # Must convert map object to list before accessing
         else:
             # TODO: Should this return an empty list or a random vector? (check literature)
             # print(word, "is not in the dictionary")
@@ -62,7 +62,7 @@ class InputProcessor:
             return empty
 
 
-    # Takes a list of up to MAX_STR_LENGTH tokens (as strings). Populates and returns vectorized_str,
+    # Takes a list of up to MAX_STR_LENGTH Tokens. Populates and returns vectorized_str,
     # a list of vector representations of those tokens, filled with empty vectors if less 
     # than MAX_STR_LENGTH tokens were grabbed.
     def get_vectorized_str(self, tokenized_str):
