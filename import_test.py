@@ -6,9 +6,20 @@ def main():
     dataset = tf_datasets.load('goemotions', split='train')
     
     # Directly from GoEmotions tutorial
-    for element in dataset.take(1):
+    # `element` is a dictionary containing tensors for every emotion and the comment text
+    for element in dataset.take(1):     
+        print("\nFull element:\n")
+        print(element)
+
+        print("\nExtracted comment text:\n")
         print(element['comment_text'])
-        print(element['joy'].dtype)     # TODO: Not actually outputting True/False :(
+
+        # Tensor structure:
+        # General:              tf.Tensor(`data`, shape=, dtype= )
+        # GoEmotions Example:   tf.Tensor(False, shape=(), dtype=bool)
+        print("\nExtracted joy T/F:\n")
+        tensor = element['joy']
+        print(tensor.numpy())     # `.numpy() gets the data from the tensor`
 
 if __name__ == '__main__':
     main()
