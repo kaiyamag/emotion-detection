@@ -22,8 +22,9 @@ class InputProcessor:
         self.ft_filename = ft_filename
     
 
-    # From FastText documentation. Gets pre-trained word vectors. Populates and returns the vector_data
-    # dictionary with words and their corresponding vector representations.
+    """From FastText documentation. Gets pre-trained word vectors. Populates and returns the vector_data dictionary with 
+    words and their corresponding vector representations.
+    """
     def load_vectors(self):
         fin = io.open(self.ft_filename, 'r', encoding='utf-8', newline='\n', errors='ignore')
         n, d = map(int, fin.readline().split())
@@ -49,8 +50,9 @@ class InputProcessor:
         return self.vector_data
 
 
-    # Returns a 300-D vector (as a list) of floats corresponding to the given word. If the word
-    # does not exist in the dictionary, returns a list of 0's
+    """Returns a 300-D vector (as a list) of floats corresponding to the given word. If the word does not exist in the 
+    dictionary, returns a list of 0's
+    """
     def get_vector(self, token):
         if (token.get_word() in self.vector_data):
             return list(self.vector_data[token.get_word()])     # Must convert map object to list before accessing
@@ -62,9 +64,9 @@ class InputProcessor:
             return empty
 
 
-    # Takes a list of up to MAX_STR_LENGTH Tokens. Populates and returns vectorized_str,
-    # a list of vector representations of those tokens, filled with empty vectors if less 
-    # than MAX_STR_LENGTH tokens were grabbed.
+    """ Takes a list of up to MAX_STR_LENGTH Tokens. Populates and returns vectorized_str, a list of vector 
+    representations of those tokens, filled with empty vectors if less than MAX_STR_LENGTH tokens were grabbed.
+    """
     def get_vectorized_str(self, tokenized_str):
         strlen = 0
         for token in tokenized_str:
@@ -86,12 +88,14 @@ class InputProcessor:
         return self.vectorized_str
     
 
-    # Getter method. Returns dictionary of vector data
+    """ Getter method. Returns dictionary of vector data
+    """
     def get_vector_data(self):
         return self.vector_data
 
     
-    # Converts a string to a list of Tokens
+    """ Converts a string to a list of Tokens
+    """
     def tokenize(self, str):
         str_list = str.split()
         self.tokenized_str = []
@@ -102,6 +106,7 @@ class InputProcessor:
         return self.tokenized_str
 
 
-    # Gets tokenized string
+    """ Gets tokenized string
+    """
     def get_tokenized_str(self):
         return self.tokenized_str
