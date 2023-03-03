@@ -17,13 +17,13 @@ def main():
 
     print("Loading GoEmotions database...")
     ge_model = GoEmotions()
+    print("Done loading GoEmotions")
 
     # Test conversion from list of words to list of vectors
     #sample_str = [Token("I"), Token("love"), Token("pie")] 
 
     # Get a random test comment
     index = (int) (random.random() * 1000)
-    print(index)
     sample_comment = ge_model.extract_comment(index)
     print("Comment", index, ":", sample_comment)
     sample_emotion_vec = ge_model.extract_emotion_vec(index)
