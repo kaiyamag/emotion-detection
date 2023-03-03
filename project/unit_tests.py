@@ -1,6 +1,6 @@
 from InputProcessor import InputProcessor
 from Token import Token
-from import_test import GoEmotions
+from GoEmotions import GoEmotions
 
 VERBOSE = True      # Enables debugging comments
 
@@ -71,14 +71,21 @@ def test_Token():
 """ Tests comment text extraction from GoEmotions dataset
 """
 def test_comment_extraction(ge_model):
-    comment_text = ge_model.extract_comment(1)
-    expected_comment_text = 'b"It\'s just wholesome content, from questionable sources"'
+    index_1 = 1
+    comment_text_1 = ge_model.extract_comment(index_1)
+    expected_comment_text_1 = "It's just wholesome content, from questionable sources"
+
+    index_2 = 10
+    comment_text_2 = ge_model.extract_comment(index_2)
+    expected_comment_text_2 = "Same thing happened to me last year ended horribly"
     
     if (VERBOSE):
-        print("Comment text:", comment_text)
-        print("Expected comment text:", expected_comment_text)
+        print("Comment text 1:", comment_text_1)
+        print("Expected comment text 1:", expected_comment_text_1)
+        print("Comment text 2:", comment_text_2)
+        print("Expected comment text 2:", expected_comment_text_2)
     
-    if (comment_text == expected_comment_text):
+    if ((comment_text_1 == expected_comment_text_1) and (comment_text_2 == expected_comment_text_2)):
         return True
     else:
         return False
@@ -91,8 +98,8 @@ def test_emotion_vec_extraction(ge_model):
     expected_emotion_vec = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
     
     if (VERBOSE):
-        print("Emotion vector:", emotion_vec)
-        print("Expected emotion vector:", expected_emotion_vec)
+        print("Emotion vector:\t\t\t", emotion_vec)
+        print("Expected emotion vector:\t", expected_emotion_vec)
     
     if (emotion_vec == expected_emotion_vec):
         return True
@@ -103,15 +110,21 @@ def test_emotion_vec_extraction(ge_model):
 """ Tests emotion vector to string list conversion
 """
 def test_get_one_hot_emotions(ge_model):
-    emotion_vec = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
-    emotion_str = ge_model.get_one_hot_emotions(emotion_vec)
-    expected_emotion_str = ['neutral']
+    emotion_vec_1 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+    emotion_str_1 = ge_model.get_one_hot_emotions(emotion_vec_1)
+    expected_emotion_str_1 = ['neutral']
+
+    emotion_vec_2 = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+    emotion_str_2 = ge_model.get_one_hot_emotions(emotion_vec_2)
+    expected_emotion_str_2 = ['admiration',  'amusement',  'anger', 'surprise']
     
     if (VERBOSE):
-        print("Emotion string:", emotion_str)
-        print("Expected emotion string:", expected_emotion_str)
+        print("Emotion string 1:\t\t", emotion_str_1)
+        print("Expected emotion string 1:\t", expected_emotion_str_1)
+        print("Emotion string 2:\t\t", emotion_str_2)
+        print("Expected emotion string 2:\t", expected_emotion_str_2)
     
-    if (emotion_str == expected_emotion_str):
+    if ((emotion_str_1 == expected_emotion_str_1) and (emotion_str_2 == expected_emotion_str_2)):
         return True
     else:
         return False
