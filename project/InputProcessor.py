@@ -1,4 +1,5 @@
 import io
+from Token import Token
 
 # Number of word vectors to grab from pre-trained vectors. 
 # Limited to 100,000 for debugging
@@ -14,6 +15,7 @@ class InputProcessor:
     ft_filename = ""   # FastText word embeddings file
     vectorized_str = []  # A list of word vectors corresponding to words from tokenized_str
     vector_data = {}    # A dictionary where the key is a string and the value is a list of floats (300-D vector)
+    tokenized_str = []  # A list of tokens corresponding to comment text
 
     # Initializer
     def __init__(self, ft_filename):
@@ -89,3 +91,24 @@ class InputProcessor:
     # Getter method. Returns dictionary of vector data
     def get_vector_data(self):
         return self.vector_data
+
+    
+    # Converts a string to a list of Tokens
+    def tokenize(self, str):
+        print("String:", str)
+
+        str_list = str.split()
+        print("Str_list:", str_list)
+
+        self.tokenized_str = []
+        for word in str_list:
+            self.tokenized_str.append(Token(word))
+
+        print("Tokenized:", self.tokenized_str)
+        return self.tokenized_str
+    
+
+    # Gets tokenized string
+    def get_tokenized_str(self):
+        print("Tokenized:", self.tokenized_str)
+        return self.tokenized_str
