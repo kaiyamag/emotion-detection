@@ -3,8 +3,8 @@ Building off of my experience with neural networks, I plan to design a Long Shor
 
 ## Code Citations:
 
-**Loading the GoEmotions dataset** Used example load function from GoEmotions documentation to implement GoEmotions class initializer.
+**Loading the GoEmotions dataset** Used example load function from [GoEmotions documentation](https://github.com/tensorflow/models/blob/fa3ba13e2b16782f3b0f483d24f4110877264e61/research/seq_flow_lite/demo/colab/emotion_colab.ipynb) to implement GoEmotions class initializer.
 
-**Loading the FastText dataset** Used example load function from FastText documentation to implement InputProcessor load_vectors function.
+**Loading the FastText dataset** Used example load function from [FastText documentation](https://fasttext.cc/docs/en/english-vectors.html) to implement InputProcessor load_vectors function.
 
-**Accessing the nth key of a dictionary** Took inspiration from a StackOverflow answer to get the nth key of a dictionary (https://stackoverflow.com/questions/16977385/extract-the-nth-key-in-a-python-dictionary/59740280#59740280).
+**Accessing the nth key of a dictionary** Took inspiration from [a StackOverflow answer](https://stackoverflow.com/questions/16977385/extract-the-nth-key-in-a-python-dictionary/59740280#59740280) to get the nth key of a dictionary .
