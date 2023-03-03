@@ -53,11 +53,9 @@ class InputProcessor:
     # does not exist in the dictionary, returns a list of 0's
     def get_vector(self, token):
         if (token.get_word() in self.vector_data):
-            # print(word, "is in the dictionary")
             return list(self.vector_data[token.get_word()])     # Must convert map object to list before accessing
         else:
             # TODO: Should this return an empty list or a random vector? (check literature)
-            # print(word, "is not in the dictionary")
             empty = []
             for i in range(300):
                 empty.append(0.0)
@@ -95,20 +93,15 @@ class InputProcessor:
     
     # Converts a string to a list of Tokens
     def tokenize(self, str):
-        print("String:", str)
-
         str_list = str.split()
-        print("Str_list:", str_list)
-
         self.tokenized_str = []
+
         for word in str_list:
             self.tokenized_str.append(Token(word))
 
-        print("Tokenized:", self.tokenized_str)
         return self.tokenized_str
-    
+
 
     # Gets tokenized string
     def get_tokenized_str(self):
-        print("Tokenized:", self.tokenized_str)
         return self.tokenized_str
