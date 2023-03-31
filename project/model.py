@@ -20,7 +20,8 @@ class Model:
     def __init__(self):
         print("Init")
     
-    # Creates new Keras LSTM and compiles. Function from ANN Course example
+    """Creates new Keras LSTM and compiles. Function from ANN Course example
+    """
     def buildModel(self):
         # Testing
         chars = sorted(list(set(self.text)))
@@ -36,6 +37,22 @@ class Model:
             optimizer=RMSprop(learning_rate=0.01),
             metrics=['categorical_crossentropy', 'accuracy']
         )
+    
+
+    """ Formats datasets x (input) and y (expected output) for training with the Keras model.
+        From https://machinelearningknowledge.ai/keras-lstm-layer-explained-for-beginners-with-example/
+    """
+    # def buildTrainingSet(self):
+    #     x_train = []
+    #     y_train = []
+
+    #     # We want to add 
+    #     for i in range(60, 2035):
+    #         x_train.append(training_set_scaled[i-60:i, 0])
+    #         y_train.append(training_set_scaled[i, 0])
+    #     x_train, y_train = np.array(x_train), np.array(y_train)
+
+    #     x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
 
 
 """ Test model functions
@@ -43,11 +60,15 @@ class Model:
 def main():
     print("Hello world!")
 
-    my_model = Model()
-    print("Done initializing model")
+    # my_model = Model()
+    # print("Done initializing model")
 
-    my_model.buildModel()
-    print("Done building model")
+    # my_model.buildModel()
+    # print("Done building model")
+
+    ge = GoEmotions()
+    ge.buildXTrain()
+    print("Done building x_train")
 
 
 if __name__ == '__main__':
