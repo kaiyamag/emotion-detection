@@ -1,4 +1,5 @@
 import io
+import numpy as np
 from InputProcessor import InputProcessor
 from Token import Token
 from GoEmotions import GoEmotions
@@ -9,6 +10,8 @@ from keras.layers import Dense, LSTM
 from tensorflow.keras.optimizers import RMSprop
 import keras
 
+# Number of comments to use from GoEmotions dataset
+DATASET_SIZE = 1000
 
 """ Manages the Tensorflow neural network model. 
 """
@@ -18,8 +21,12 @@ class Model:
 
     # Initializer
     def __init__(self):
-        print("Init")
+        self.filename = "C:\\Users\\aeble\\Documents\\CS_200_Projects\\Junior_IS\\wiki-news-300d-1M.vec"
+        self.x_train = []
+        self.ge = GoEmotions()
+        self.input_processor = InputProcessor(self.filename)
     
+
     """Creates new Keras LSTM and compiles. Function from ANN Course example
     """
     def buildModel(self):
@@ -37,7 +44,58 @@ class Model:
             optimizer=RMSprop(learning_rate=0.01),
             metrics=['categorical_crossentropy', 'accuracy']
         )
-    
+
+
+    """ Create x training dataset of vectorized comments. 
+    """
+    def buildXTrain(self):
+        print("Building x_train dataset...")
+
+        # Set max dataset size
+        iterator = iter(self.ge.dataset)
+        if (DATASET_SIZE < len(self.ge.dataset)):
+            max = DATASET_SIZE
+        else:
+            max = len(self.ge.dataset)
+
+        # For each entry in GoEmotions database, extract comment and convert to vector
+        for i in range(0, max):
+            element = next(iterator)
+            comment_text = element['comment_text'].numpy()
+            comment_text = comment_text.decode("utf-8")
+            comment_text = self.input_processor.tokenize(comment_text)
+            comment_vec = self.input_processor.get_vectorized_str(comment_text)
+
+            # DEBUG
+            # print("comment:", element)
+            # print("\nvec:", np.array(comment_vec))
+
+            # Initialize x_train with first comment vec. Ensures all dataset elements have same numpy shape
+            if (i == 0):
+                self.x_train = np.array(comment_vec)[np.newaxis, :, :]
+            
+            # Add next vectorized comment to dataset
+            else:
+                #a = np.array(self.x_train)
+                b = np.array(comment_vec)[np.newaxis, :, :]
+                self.x_train = np.concatenate((self.x_train, b), axis=0)
+
+                # DEBUG
+                # print("------ i: ", i, "--------")
+                # print("a shape: ", a.shape)
+                # print("b shape: ", b.shape)
+
+            # Print debugging message at every 10% interval:
+            if ((i % (max / 10)) == 0):
+                print(">>", (i / max) * 100, "% complete ")
+        
+        # DEBUG
+        # print("First element of x_train:")
+        # print(self.x_train[1])
+
+        # TODO: Why is get_vectorized_str returning blank arrays?
+        # Solution: replace [] with empty vec
+
 
     """ Formats datasets x (input) and y (expected output) for training with the Keras model.
         From https://machinelearningknowledge.ai/keras-lstm-layer-explained-for-beginners-with-example/
@@ -58,18 +116,15 @@ class Model:
 """ Test model functions
 """
 def main():
-    print("Hello world!")
-
-    # my_model = Model()
-    # print("Done initializing model")
+    my_model = Model()
+    print("Done initializing model")
 
     # my_model.buildModel()
     # print("Done building model")
 
-    ge = GoEmotions()
-    ge.buildXTrain()
-    print("Done building x_train, shape", ge.x_train.shape)
-    print(ge.x_train)
+    my_model.buildXTrain()
+    print("Done building x_train, shape", my_model.x_train.shape)
+    print(my_model.x_train)
 
 
 if __name__ == '__main__':

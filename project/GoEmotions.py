@@ -6,8 +6,8 @@ from itertools import islice
 
 from InputProcessor import InputProcessor
 
-# Number of comments to use from GoEmotions dataset
-DATASET_SIZE = 1000
+# # Number of comments to use from GoEmotions dataset
+# DATASET_SIZE = 1000
 
 
 """ This class stores the loaded GoEmotions database and manages functions to extract data from this dataset
@@ -20,14 +20,14 @@ class GoEmotions:
     # For buildXTrain()
     x_train = []
     filename = "C:\\Users\\aeble\\Documents\\CS_200_Projects\\Junior_IS\\wiki-news-300d-1M.vec"
-    input_processor = []
+    # input_processor = []
 
 
     # Initializer
     def __init__(self):
         self.dataset = tf_datasets.load('goemotions', split='train')
-        self.input_processor = InputProcessor(self.filename)
-        self.input_processor.load_vectors()
+        # self.input_processor = InputProcessor(self.filename)
+        # self.input_processor.load_vectors()
     
 
     """ Takes an index of this dataset. Returns the comment text of the datapoint at the given index. 
@@ -84,49 +84,49 @@ class GoEmotions:
 
     """ Converts each extracted comment from the entire GoEmotions dataset to a list of vectorized comments
     """
-    def buildXTrain(self):
-        print("Building x_train dataset...")
-        # For each entry in GoEmotions database, extract comment and convert to vector
-        iterator = iter(self.dataset)
-        if (DATASET_SIZE < len(self.dataset)):
-            max = DATASET_SIZE
-        else:
-            max = len(self.dataset)
+    # def buildXTrain(self):
+    #     print("Building x_train dataset...")
+    #     # For each entry in GoEmotions database, extract comment and convert to vector
+    #     iterator = iter(self.dataset)
+    #     if (DATASET_SIZE < len(self.dataset)):
+    #         max = DATASET_SIZE
+    #     else:
+    #         max = len(self.dataset)
 
-        for i in range(0, max):
-            element = next(iterator)
-            comment_text = element['comment_text'].numpy()
-            comment_text = comment_text.decode("utf-8")
-            comment_text = self.input_processor.tokenize(comment_text)
+    #     for i in range(0, max):
+    #         element = next(iterator)
+    #         comment_text = element['comment_text'].numpy()
+    #         comment_text = comment_text.decode("utf-8")
+    #         comment_text = self.input_processor.tokenize(comment_text)
             
-            comment_vec = self.input_processor.get_vectorized_str(comment_text)
+    #         comment_vec = self.input_processor.get_vectorized_str(comment_text)
 
-            # DEBUG
-            #print("comment:", element)
-            #print("\nvec:", comment_vec)
+    #         # DEBUG
+    #         #print("comment:", element)
+    #         #print("\nvec:", comment_vec)
 
-            # Initialize x_train with first comment vec. Ensures all dataset elements have same numpy shape
-            if (i == 0):
-                self.x_train = np.array(comment_vec)[np.newaxis, :, :]
-            else:
-                #a = np.array(self.x_train)
-                b = np.array(comment_vec)[np.newaxis, :, :]
-                self.x_train = np.concatenate((self.x_train, b), axis=0)
+    #         # Initialize x_train with first comment vec. Ensures all dataset elements have same numpy shape
+    #         if (i == 0):
+    #             self.x_train = np.array(comment_vec)[np.newaxis, :, :]
+    #         else:
+    #             #a = np.array(self.x_train)
+    #             b = np.array(comment_vec)[np.newaxis, :, :]
+    #             self.x_train = np.concatenate((self.x_train, b), axis=0)
 
-                # DEBUG
-                # print("------ i: ", i, "--------")
-                # print("a shape: ", a.shape)
-                # print("b shape: ", b.shape)
+    #             # DEBUG
+    #             # print("------ i: ", i, "--------")
+    #             # print("a shape: ", a.shape)
+    #             # print("b shape: ", b.shape)
 
-            # Print debugging message:
-            if ((i % (max / 10)) == 0):
-                print(">>", (i / max) * 100, "% complete ")
+    #         # Print debugging message:
+    #         if ((i % (max / 10)) == 0):
+    #             print(">>", (i / max) * 100, "% complete ")
         
-        # DEBUG
-        # print("First element of x_train:")
-        # print(self.x_train[1])
+    #     # DEBUG
+    #     # print("First element of x_train:")
+    #     # print(self.x_train[1])
 
-        # TODO: Why is get_vectorized_str returning blank arrays?
-        # Solution: replace [] with empty vec
+    #     # TODO: Why is get_vectorized_str returning blank arrays?
+    #     # Solution: replace [] with empty vec
 
 
