@@ -26,25 +26,42 @@ class Model:
         self.y_train = []
         self.ge = GoEmotions()
         self.input_processor = InputProcessor(self.filename)
+        self.model = Sequential()
     
 
     """Creates new Keras LSTM and compiles. Function from ANN Course example
     """
     def build_model(self):
         # Testing
-        chars = sorted(list(set(self.text)))
-        seqlen = 10
+        # chars = sorted(list(set(self.text)))
+        # seqlen = 10
+        comment_len = 30
+        word_embedding_len = 300
+        emotion_vec_len = 28
 
         # Create model
-        model = Sequential()
-        model.add(LSTM(128, input_shape=(seqlen, len(chars)), return_sequences=True))
-        model.add(Dense(len(chars), activation='softmax'))
+        self.model = Sequential()
+        # model.add(LSTM(128, input_shape=(seqlen, len(chars)), return_sequences=True))     # Test w/ RNN and film script input
+        self.model.add(LSTM(128, input_shape=(comment_len, word_embedding_len)))      # TODO: Remove 300 magic numbers, replace w/ class constant or expression 
+        self.model.add(Dense(emotion_vec_len, activation='softmax'))
 
-        model.compile(
+        self.model.compile(
             loss='categorical_crossentropy',
             optimizer=RMSprop(learning_rate=0.01),
             metrics=['categorical_crossentropy', 'accuracy']
         )
+
+        print(self.model.summary)
+
+        self.model.fit(self.x_train, self.y_train, batch_size=128, epochs=1)
+
+        return self.model
+    
+    
+    """ Trains model with x and y training data
+    """
+    # def train_model(self, model):
+        # model.fit(x_train, y_train, batch_size=128, epochs=1)
 
 
     """ Create x training dataset of vectorized comments. 
@@ -111,7 +128,7 @@ class Model:
 
         # TODO: Why is get_vectorized_str returning blank arrays?
         # Solution: replace [] with empty vec
-        
+
 
 """ Test model functions
 """
@@ -119,15 +136,19 @@ def main():
     my_model = Model()
     print("Done initializing model")
 
-    # my_model.build_model()
-    # print("Done building model")
-
     my_model.build_train_sets()
     print("Done building x_train, shape", my_model.x_train.shape)
     print(my_model.x_train)
 
     print("\n\nDone building y_train, shape", my_model.y_train.shape)
     print(my_model.y_train)
+
+    my_model.build_model()
+    print("Done building model")
+    print(my_model.model.summary())
+
+    # my_model.train_model(my_model)
+    # print("Done training model")
 
 
 if __name__ == '__main__':
