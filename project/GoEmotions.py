@@ -62,6 +62,20 @@ class GoEmotions:
                 emotions.append(0)
 
         return emotions
+
+    
+    """ Takes an element of this dataset. Returns a one-hot encoding of emotion labels for the datapoint at the given index. 
+    """
+    def extract_emotion_from_element(self, element):
+        emotions = []
+        
+        for emotion in self.master_emotions:
+            if (element[emotion].numpy() == True):
+                emotions.append(1)
+            else:
+                emotions.append(0)
+
+        return emotions
     
 
     """ Returns a list of all emotions present (value of 1) in the given emotion one-hot-encoding vector
