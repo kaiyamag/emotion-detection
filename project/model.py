@@ -30,7 +30,7 @@ class Model:
 
     """Creates new Keras LSTM and compiles. Function from ANN Course example
     """
-    def buildModel(self):
+    def build_model(self):
         # Testing
         chars = sorted(list(set(self.text)))
         seqlen = 10
@@ -49,8 +49,8 @@ class Model:
 
     """ Create x training dataset of vectorized comments. 
     """
-    def buildXTrain(self):
-        print("Building x_train dataset...")
+    def build_train_sets(self):
+        print("Building x and y training datasets...")
 
         # Set max dataset size
         iterator = iter(self.ge.dataset)
@@ -111,23 +111,7 @@ class Model:
 
         # TODO: Why is get_vectorized_str returning blank arrays?
         # Solution: replace [] with empty vec
-
-
-    """ Formats datasets x (input) and y (expected output) for training with the Keras model.
-        From https://machinelearningknowledge.ai/keras-lstm-layer-explained-for-beginners-with-example/
-    """
-    # def buildTrainingSet(self):
-    #     x_train = []
-    #     y_train = []
-
-    #     # We want to add 
-    #     for i in range(60, 2035):
-    #         x_train.append(training_set_scaled[i-60:i, 0])
-    #         y_train.append(training_set_scaled[i, 0])
-    #     x_train, y_train = np.array(x_train), np.array(y_train)
-
-    #     x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
-
+        
 
 """ Test model functions
 """
@@ -135,10 +119,10 @@ def main():
     my_model = Model()
     print("Done initializing model")
 
-    # my_model.buildModel()
+    # my_model.build_model()
     # print("Done building model")
 
-    my_model.buildXTrain()
+    my_model.build_train_sets()
     print("Done building x_train, shape", my_model.x_train.shape)
     print(my_model.x_train)
 
