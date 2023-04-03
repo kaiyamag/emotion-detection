@@ -68,7 +68,8 @@ def main():
 
     ge = GoEmotions()
     ge.buildXTrain()
-    print("Done building x_train")
+    print("Done building x_train, shape", ge.x_train.shape)
+    print(ge.x_train)
 
 
 if __name__ == '__main__':
