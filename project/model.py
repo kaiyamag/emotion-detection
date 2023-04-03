@@ -23,6 +23,7 @@ class Model:
     def __init__(self):
         self.filename = "C:\\Users\\aeble\\Documents\\CS_200_Projects\\Junior_IS\\wiki-news-300d-1M.vec"
         self.x_train = []
+        self.y_train = []
         self.ge = GoEmotions()
         self.input_processor = InputProcessor(self.filename)
     
@@ -60,6 +61,7 @@ class Model:
 
         # For each entry in GoEmotions database, extract comment and convert to vector
         for i in range(0, max):
+            # ------------- X TRAIN -------------
             element = next(iterator)
             comment_text = element['comment_text'].numpy()
             comment_text = comment_text.decode("utf-8")
@@ -83,6 +85,20 @@ class Model:
                 # DEBUG
                 # print("------ i: ", i, "--------")
                 # print("a shape: ", a.shape)
+                # print("b shape: ", b.shape)
+            
+            # ---------- Y TRAIN ------------
+            emotion_vec = self.ge.extract_emotion_from_element(element)
+
+            if (i == 0):
+                self.y_train = np.array(emotion_vec)[np.newaxis, :]
+            else:
+                b = np.array(emotion_vec)[np.newaxis, :]
+                self.y_train = np.concatenate((self.y_train, b), axis=0)
+
+                # DEBUG
+                # print("------ i: ", i, "--------")
+                # print("y_train shape: ", self.y_train.shape)
                 # print("b shape: ", b.shape)
 
             # Print debugging message at every 10% interval:
@@ -125,6 +141,9 @@ def main():
     my_model.buildXTrain()
     print("Done building x_train, shape", my_model.x_train.shape)
     print(my_model.x_train)
+
+    print("\n\nDone building y_train, shape", my_model.y_train.shape)
+    print(my_model.y_train)
 
 
 if __name__ == '__main__':
