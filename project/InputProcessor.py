@@ -21,6 +21,7 @@ class InputProcessor:
     # Initializer
     def __init__(self, ft_filename):
         self.ft_filename = ft_filename
+        self.load_vectors()
     
 
     """From FastText documentation. Gets pre-trained word vectors. Populates and returns the vector_data dictionary with 
@@ -63,7 +64,7 @@ class InputProcessor:
             fetched_vec = list(self.vector_data[word])      # Must convert map object to list before accessing
             
             # DEBUG
-            #print("Got word:", fetched_vec, "from token", word)
+            # print("Got word:", fetched_vec, "from token", word)
 
             # TODO: Ongoing bug: Even if word is in dictionary, it can fetch [] as the vector.
             # This workaround replaces all [] vectors with zeroes/empty vectors
