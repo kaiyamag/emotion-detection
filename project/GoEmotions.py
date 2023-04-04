@@ -1,13 +1,6 @@
 import tensorflow as tf
 import tensorflow_datasets as tf_datasets
-import numpy as np
-
 from itertools import islice
-
-from InputProcessor import InputProcessor
-
-# # Number of comments to use from GoEmotions dataset
-# DATASET_SIZE = 1000
 
 
 """ This class stores the loaded GoEmotions database and manages functions to extract data from this dataset
@@ -17,11 +10,6 @@ class GoEmotions:
     dataset = []
     master_emotions = ['admiration',  'amusement',  'anger', 'annoyance', 'approval', 'caring', 'confusion', 'curiosity',  'desire', 'disappointment', 'disapproval',  'disgust', 'embarrassment',  'excitement',  'fear', 'gratitude',  'grief', 'joy',  'love', 'nervousness', 'neutral', 'optimism', 'pride', 'realization', 'relief', 'remorse',  'sadness',  'surprise']
     
-    # For buildXTrain()
-    x_train = []
-    filename = "C:\\Users\\aeble\\Documents\\CS_200_Projects\\Junior_IS\\wiki-news-300d-1M.vec"
-
-
     # Initializer
     def __init__(self):
         self.dataset = tf_datasets.load('goemotions', split='train')
