@@ -11,6 +11,9 @@ from keras.layers import Dense, LSTM
 from tensorflow.keras.optimizers import RMSprop
 import keras
 
+# From Confusion Matrix example (https://stackoverflow.com/questions/2148543/how-to-write-a-confusion-matrix)
+from sklearn.metrics import confusion_matrix
+
 # Number of comments to use from GoEmotions dataset
 DATASET_SIZE = 1000
 
@@ -87,6 +90,7 @@ class Model:
 
         return pred
 
+
     """ Runs model with testing datasets. Returns array of output emotion vector preditions.
     """
     def test_model(self):
@@ -104,6 +108,33 @@ class Model:
         self.y_pred = (self.model.predict(self.x_test))
         
         return self.y_pred
+    
+
+    """ Prints a confusion matrix from expected output and actual output
+    """
+    def print_confusion_mat(self):
+        print("Confusion matrix:")
+
+        # Suggestion from https://stackoverflow.com/questions/48987959/classification-metrics-cant-handle-a-mix-of-continuous-multioutput-and-multi-la
+        # argmax isn't relevant here: it gets the index of the maximum value in a numpy array
+        adj_y_test = np.argmax(self.y_test, axis=1)
+        adj_y_pred = np.argmax(self.y_pred, axis=1)
+
+        # DEBUG
+        print("adjusted y_test shape:", adj_y_test.shape)
+        print("adjusted y_pred shape:", adj_y_pred.shape)
+        # print("adjusted y_test:", adj_y_test)
+        # print("adjusted y_pred:", adj_y_pred)
+
+        # mat = confusion_matrix(self.y_test, self.y_pred)
+        mat = confusion_matrix(adj_y_test, adj_y_pred)
+        print(mat)
+
+        return mat
+
+        # TODO:
+        # Install sklearn, already in requirements.txt (but don't install that again!)
+
 
 
     """ Split x and y test sets from previously generated x and y train sets. Assumes x_train 
@@ -252,6 +283,8 @@ def main():
     print("Done testing model, y_pred shape", my_model.y_pred.shape)
     print("y_pred array:", my_model.y_pred)
     print("One prediction:", my_model.y_pred[1])
+
+    my_model.print_confusion_mat()
 
 
 if __name__ == '__main__':
