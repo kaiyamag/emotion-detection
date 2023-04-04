@@ -1,5 +1,6 @@
 import io
 import numpy as np
+import math
 from InputProcessor import InputProcessor
 from Token import Token
 from GoEmotions import GoEmotions
@@ -24,6 +25,8 @@ class Model:
         self.filename = "C:\\Users\\aeble\\Documents\\CS_200_Projects\\Junior_IS\\wiki-news-300d-1M.vec"
         self.x_train = []
         self.y_train = []
+        self.x_test = []
+        self.y_test = []
         self.ge = GoEmotions()
         self.input_processor = InputProcessor(self.filename)
         self.model = Sequential()
@@ -35,33 +38,85 @@ class Model:
         # Testing
         # chars = sorted(list(set(self.text)))
         # seqlen = 10
-        comment_len = 30
+        comment_len = 30 # TODO: Remove magic numbers, replace w/ class constant or expression 
         word_embedding_len = 300
         emotion_vec_len = 28
+        dropout_rate = 0.1
 
         # Create model
         self.model = Sequential()
         # model.add(LSTM(128, input_shape=(seqlen, len(chars)), return_sequences=True))     # Test w/ RNN and film script input
-        self.model.add(LSTM(128, input_shape=(comment_len, word_embedding_len)))      # TODO: Remove 300 magic numbers, replace w/ class constant or expression 
+
+        # LSTM layer: Takes in vectors of shape (30, 300) and outputs vector of length 128
+        self.model.add(LSTM(
+            128, 
+            input_shape=(comment_len, word_embedding_len), 
+            activation='tanh',
+            dropout=dropout_rate)
+        )     
+
+        # Output dense layer: Outputs a vector of length 28 with Softmax activation 
         self.model.add(Dense(emotion_vec_len, activation='softmax'))
 
         self.model.compile(
             loss='categorical_crossentropy',
             optimizer=RMSprop(learning_rate=0.01),
-            metrics=['categorical_crossentropy', 'accuracy']
+            metrics=['categorical_crossentropy', 'accuracy']    # 'val_acc', 'val_loss'
         )
-
-        print(self.model.summary)
-
-        self.model.fit(self.x_train, self.y_train, batch_size=128, epochs=1)
 
         return self.model
     
     
     """ Trains model with x and y training data
     """
-    # def train_model(self, model):
-        # model.fit(x_train, y_train, batch_size=128, epochs=1)
+    def train_model(self, model):
+        val_split = 0.1
+
+        self.model.fit(self.x_train, self.y_train, 
+            batch_size=128, 
+            epochs=1,
+            validation_split = val_split
+        )
+
+    
+    """ Gets model prediction for given comment vector of shape (30, 300)
+    """
+    def get_pred(self, model, comment_vec):
+        pred = self.model.predict(comment_vec, verbose=0)
+
+        return pred
+
+
+    """ Split x and y test sets from previously generated x and y train sets. Assumes x_train 
+    and y_train are still in their original order. Takes test split as a percentage.
+    """
+    def build_test_sets(self, split):
+        print("Building x and y test splits")
+
+        # Check that given split is a percentage between 0 and 1. Split defaults to 0.2 if exception is thrown
+        try:
+            assert (split >= 0 and split <= 1.0), "Testing split must be between 0 and 1."
+        except AssertionError as exc:
+            print(">> Error:", exc)
+            split = 0.2
+
+        # Check that x and y train sets are the same length. Exits function if exception is thrown
+        try:
+            assert len(self.x_train) == len(self.y_train), "x_train and y_train have different lengths."
+        except AssertionError as exc:
+            print(">> Error:", exc)
+            return -1
+
+        split_index = math.floor(split * len(self.x_train))
+        print("Split index:", split_index)
+
+        # Gets split% last elements of x and y train sets to use for test sets
+        self.x_test = self.x_train[-split_index:]
+        self.y_test = self.y_train[-split_index:]
+
+        # Truncate x/y train sets to [:split index] so that train and test sets don't overlap
+        self.x_train = self.x_train[:-(split_index + 1)]
+        self.y_train = self.y_train[:-(split_index + 1)]
 
 
     """ Create x training dataset of vectorized comments. 
@@ -143,12 +198,36 @@ def main():
     print("\n\nDone building y_train, shape", my_model.y_train.shape)
     print(my_model.y_train)
 
+    test_split = -50
+    my_model.build_test_sets(test_split)
+    print("Done building x_test, shape", my_model.x_test.shape)
+    #print(my_model.x_test)
+
+    print("\n\nDone building y_test, shape", my_model.y_test.shape)
+    #print(my_model.y_test)
+
+    print("Done reshaping x_train, shape", my_model.x_train.shape)
+    print("Done reshaping y_train, shape", my_model.y_train.shape)
+
     my_model.build_model()
-    print("Done building model")
+    print("\n\nDone building model")
     print(my_model.model.summary())
 
-    # my_model.train_model(my_model)
-    # print("Done training model")
+    my_model.train_model(my_model)
+    print("Done training model")
+
+    # Make comment vector for prediction testing
+    str = "I am excited to eat pie"
+    tokenized_str = my_model.input_processor.tokenize(str)
+    comment_vec = my_model.input_processor.get_vectorized_str(tokenized_str)
+    comment_vec = np.array(comment_vec)[np.newaxis, :, :]
+    print("Comment:", str, "shape:", np.array(comment_vec).shape)
+
+    pred = my_model.get_pred(my_model, comment_vec)
+    print("Done getting prediction")
+
+    print("Prediction shape:", np.array(pred).shape)
+    print("Prediction:", pred)
 
 
 if __name__ == '__main__':
