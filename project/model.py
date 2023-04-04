@@ -27,6 +27,7 @@ class Model:
         self.y_train = []
         self.x_test = []
         self.y_test = []
+        self.y_pred = []
         self.ge = GoEmotions()
         self.input_processor = InputProcessor(self.filename)
         self.model = Sequential()
@@ -85,6 +86,24 @@ class Model:
         pred = self.model.predict(comment_vec, verbose=0)
 
         return pred
+
+    """ Runs model with testing datasets. Returns array of output emotion vector preditions.
+    """
+    def test_model(self):
+        print("Testing model with x_test set")
+
+        self.y_pred = []
+
+        # Check that x and y test sets are the same length. Exits function if exception is thrown
+        try:
+            assert len(self.x_test) == len(self.y_test), "x_test and y_test have different lengths."
+        except AssertionError as exc:
+            print(">> Error:", exc)
+            return -1
+        
+        self.y_pred = (self.model.predict(self.x_test))
+        
+        return self.y_pred
 
 
     """ Split x and y test sets from previously generated x and y train sets. Assumes x_train 
@@ -216,18 +235,23 @@ def main():
     my_model.train_model(my_model)
     print("Done training model")
 
-    # Make comment vector for prediction testing
-    str = "I am excited to eat pie"
-    tokenized_str = my_model.input_processor.tokenize(str)
-    comment_vec = my_model.input_processor.get_vectorized_str(tokenized_str)
-    comment_vec = np.array(comment_vec)[np.newaxis, :, :]
-    print("Comment:", str, "shape:", np.array(comment_vec).shape)
+    # # Make comment vector for prediction testing
+    # str = "I am excited to eat pie"
+    # tokenized_str = my_model.input_processor.tokenize(str)
+    # comment_vec = my_model.input_processor.get_vectorized_str(tokenized_str)
+    # comment_vec = np.array(comment_vec)[np.newaxis, :, :]
+    # print("Comment: '", str, "' shape:", np.array(comment_vec).shape)
 
-    pred = my_model.get_pred(my_model, comment_vec)
-    print("Done getting prediction")
+    # pred = my_model.get_pred(my_model, comment_vec)
+    # print("Done getting prediction")
 
-    print("Prediction shape:", np.array(pred).shape)
-    print("Prediction:", pred)
+    # print("Prediction shape:", np.array(pred).shape)
+    # print("Prediction:", pred)
+
+    my_model.test_model()
+    print("Done testing model, y_pred shape", my_model.y_pred.shape)
+    print("y_pred array:", my_model.y_pred)
+    print("One prediction:", my_model.y_pred[1])
 
 
 if __name__ == '__main__':
