@@ -59,8 +59,8 @@ class Model:
             dropout=dropout_rate)
         )     
 
-        # Output dense layer: Outputs a vector of length 28 with Softmax activation 
-        self.model.add(Dense(emotion_vec_len, activation='softmax'))
+        # Output dense layer: Outputs a vector of length 28 with sigmoid activation 
+        self.model.add(Dense(emotion_vec_len, activation='sigmoid'))
 
         self.model.compile(
             loss='categorical_crossentropy',
@@ -71,72 +71,6 @@ class Model:
         return self.model
     
     
-    """ Trains model with x and y training data
-    """
-    def train_model(self, model):
-        val_split = 0.1
-
-        self.model.fit(self.x_train, self.y_train, 
-            batch_size=128, 
-            epochs=1,
-            validation_split = val_split
-        )
-
-    
-    """ Gets model prediction for given comment vector of shape (30, 300)
-    """
-    def get_pred(self, model, comment_vec):
-        pred = self.model.predict(comment_vec, verbose=0)
-
-        return pred
-
-
-    """ Runs model with testing datasets. Returns array of output emotion vector preditions.
-    """
-    def test_model(self):
-        print("Testing model with x_test set")
-
-        self.y_pred = []
-
-        # Check that x and y test sets are the same length. Exits function if exception is thrown
-        try:
-            assert len(self.x_test) == len(self.y_test), "x_test and y_test have different lengths."
-        except AssertionError as exc:
-            print(">> Error:", exc)
-            return -1
-        
-        self.y_pred = (self.model.predict(self.x_test))
-        
-        return self.y_pred
-    
-
-    """ Prints a confusion matrix from expected output and actual output
-    """
-    def print_confusion_mat(self):
-        print("Confusion matrix:")
-
-        # Suggestion from https://stackoverflow.com/questions/48987959/classification-metrics-cant-handle-a-mix-of-continuous-multioutput-and-multi-la
-        # argmax isn't relevant here: it gets the index of the maximum value in a numpy array
-        adj_y_test = np.argmax(self.y_test, axis=1)
-        adj_y_pred = np.argmax(self.y_pred, axis=1)
-
-        # DEBUG
-        print("adjusted y_test shape:", adj_y_test.shape)
-        print("adjusted y_pred shape:", adj_y_pred.shape)
-        # print("adjusted y_test:", adj_y_test)
-        # print("adjusted y_pred:", adj_y_pred)
-
-        # mat = confusion_matrix(self.y_test, self.y_pred)
-        mat = confusion_matrix(adj_y_test, adj_y_pred)
-        print(mat)
-
-        return mat
-
-        # TODO:
-        # Install sklearn, already in requirements.txt (but don't install that again!)
-
-
-
     """ Split x and y test sets from previously generated x and y train sets. Assumes x_train 
     and y_train are still in their original order. Takes test split as a percentage.
     """
@@ -235,6 +169,78 @@ class Model:
         # Solution: replace [] with empty vec
 
 
+    """ Trains model with x and y training data
+    """
+    def train_model(self, model):
+        val_split = 0.1
+
+        self.model.fit(self.x_train, self.y_train, 
+            batch_size=128, 
+            epochs=1,
+            validation_split = val_split
+        )
+
+    
+    """ Gets model prediction for given comment vector of shape (30, 300)
+    """
+    def get_pred(self, model, comment_vec):
+        pred = self.model.predict(comment_vec, verbose=0)
+
+        return pred
+
+
+    """ Runs model with testing datasets. Returns array of output emotion vector preditions.
+    """
+    def test_model(self):
+        print("Testing model with x_test set")
+
+        self.y_pred = []
+
+        # Check that x and y test sets are the same length. Exits function if exception is thrown
+        try:
+            assert len(self.x_test) == len(self.y_test), "x_test and y_test have different lengths."
+        except AssertionError as exc:
+            print(">> Error:", exc)
+            return -1
+        
+        self.y_pred = (self.model.predict(self.x_test))
+        
+        return self.y_pred
+    
+
+    """ Converts a prediction vector of floats to a binary vector, for use in F1 score or confusion matrix
+    """
+    def to_binary(self, vec):
+        binary_vec = list(map(lambda n: int(n >= 0.5), self.y_pred))
+        print("Binary vec:", binary_vec)
+
+        return binary_vec
+
+
+    """ Prints a confusion matrix from expected output and actual output
+    """
+    def print_confusion_mat(self):
+        print("Confusion matrix:")
+
+        # Suggestion from https://stackoverflow.com/questions/48987959/classification-metrics-cant-handle-a-mix-of-continuous-multioutput-and-multi-la
+        # argmax isn't relevant here: it gets the index of the maximum value in a numpy array
+        # TODO: Better define what a "correct" output is
+        adj_y_test = np.argmax(self.y_test, axis=1)
+        adj_y_pred = np.argmax(self.y_pred, axis=1)
+
+        # DEBUG
+        print("adjusted y_test shape:", adj_y_test.shape)
+        print("adjusted y_pred shape:", adj_y_pred.shape)
+        # print("adjusted y_test:", adj_y_test)
+        # print("adjusted y_pred:", adj_y_pred)
+
+        # mat = confusion_matrix(self.y_test, self.y_pred)
+        mat = confusion_matrix(adj_y_test, adj_y_pred)
+        print(mat)
+
+        return mat
+
+
 """ Test model functions
 """
 def main():
@@ -284,7 +290,9 @@ def main():
     print("y_pred array:", my_model.y_pred)
     print("One prediction:", my_model.y_pred[1])
 
-    my_model.print_confusion_mat()
+    my_model.to_binary(my_model.y_pred)
+
+    #my_model.print_confusion_mat()
 
 
 if __name__ == '__main__':
