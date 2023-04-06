@@ -225,6 +225,23 @@ class Model:
 
         return binary_vec
 
+    """ Calculates a F1 score for the predicted emotions.
+    """
+    def calculate_F1(self):
+        # F1 = 2 * (Precision * Recall) / (Precision + Recall)
+        # Precision = # True Positives / (# True Positives + # False Positives)
+        # Recall = # True Positives / (# True Positives + # False Negatives)
+        # True Positives = # of comments that had a predicted emotion of x, and the test data also had that emotion
+        # False Positives = # of comments that had a predicted emotion of x, but the test data did not have that emotion
+        # False Negatives = # of comments that did not have a predicted emotion of x, but the test data did have that emotion
+
+        # For prediction in y_pred
+            # Look at corresponding expected y from y_test.
+                # If expected[n] and prediction[n] are both 1, true_pos++
+                # If only prediction[n] is 1, false_pos++
+                # If expected[n] and prediction[n] are both 0, true_neg++
+                # If only prediction[n] is 0, false_neg++
+
 
     """ Prints a confusion matrix from expected output and actual output
     """
@@ -311,7 +328,7 @@ def main():
     binary_vec = my_model.to_binary(my_model.y_pred[1])
     print("Binary vec of size", len(binary_vec), ":", binary_vec)
 
-    my_model.print_confusion_mat()
+    # my_model.print_confusion_mat()
 
 
 if __name__ == '__main__':
