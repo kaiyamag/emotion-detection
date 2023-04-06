@@ -211,34 +211,52 @@ class Model:
     """ Converts a prediction vector of floats to a binary vector, for use in F1 score or confusion matrix
     """
     def to_binary(self, vec):
-        binary_vec = list(map(lambda n: int(n >= 0.5), self.y_pred))
-        print("Binary vec:", binary_vec)
+        # THRESHOLD VALUE: any float greater than or equal to 0.5 represents a positive identification of that emotion in the sample
+        binary_vec = list(map(lambda n: int(n >= 0.5), vec))
+        
+        # Alternate method
+        #binary_vec = []
+        # for i in range(len(vec)):
+        #     
+        #     if (vec[i] >= 0.5):
+        #         binary_vec.append(1)
+        #     else:
+        #         binary_vec.append(0)
 
         return binary_vec
 
 
     """ Prints a confusion matrix from expected output and actual output
     """
-    def print_confusion_mat(self):
-        print("Confusion matrix:")
+    # def print_confusion_mat(self):
+    #     print("Confusion matrix:")
 
-        # Suggestion from https://stackoverflow.com/questions/48987959/classification-metrics-cant-handle-a-mix-of-continuous-multioutput-and-multi-la
-        # argmax isn't relevant here: it gets the index of the maximum value in a numpy array
-        # TODO: Better define what a "correct" output is
-        adj_y_test = np.argmax(self.y_test, axis=1)
-        adj_y_pred = np.argmax(self.y_pred, axis=1)
+    #     # Suggestion from https://stackoverflow.com/questions/48987959/classification-metrics-cant-handle-a-mix-of-continuous-multioutput-and-multi-la
+    #     # argmax isn't relevant here: it gets the index of the maximum value in a numpy array
+    #     # TODO: Better define what a "correct" output is
+    #     #adj_y_test = np.argmax(self.y_test, axis=1)
+    #     adj_y_test = self.y_test
 
-        # DEBUG
-        print("adjusted y_test shape:", adj_y_test.shape)
-        print("adjusted y_pred shape:", adj_y_pred.shape)
-        # print("adjusted y_test:", adj_y_test)
-        # print("adjusted y_pred:", adj_y_pred)
+    #     # Convert all predictions in y_pred to binary
+    #     #adj_y_pred = np.argmax(self.y_pred, axis=1)
+    #     adj_y_pred = []
 
-        # mat = confusion_matrix(self.y_test, self.y_pred)
-        mat = confusion_matrix(adj_y_test, adj_y_pred)
-        print(mat)
+    #     for pred in self.y_pred:
+    #         adj_y_pred.append(self.to_binary(pred))
+        
+    #     adj_y_pred = np.array(adj_y_pred)
 
-        return mat
+    #     # DEBUG
+    #     print("adjusted y_test shape:", adj_y_test.shape)
+    #     print("adjusted y_pred shape:", adj_y_pred.shape)
+    #     print("adjusted y_test:", adj_y_test)
+    #     print("adjusted y_pred:", adj_y_pred)
+
+    #     # mat = confusion_matrix(self.y_test, self.y_pred)
+    #     mat = confusion_matrix(adj_y_test, adj_y_pred)
+    #     print(mat)
+
+    #     return mat
 
 
 """ Test model functions
@@ -288,11 +306,12 @@ def main():
     my_model.test_model()
     print("Done testing model, y_pred shape", my_model.y_pred.shape)
     print("y_pred array:", my_model.y_pred)
-    print("One prediction:", my_model.y_pred[1])
+    # print("One prediction:", my_model.y_pred[1])
 
-    my_model.to_binary(my_model.y_pred)
+    binary_vec = my_model.to_binary(my_model.y_pred[1])
+    print("Binary vec of size", len(binary_vec), ":", binary_vec)
 
-    #my_model.print_confusion_mat()
+    my_model.print_confusion_mat()
 
 
 if __name__ == '__main__':
