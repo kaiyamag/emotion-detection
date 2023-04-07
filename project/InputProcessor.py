@@ -36,7 +36,7 @@ class InputProcessor:
         i = 0
         for line in fin:
             if (i > NUM_WORDS - 1):
-                print(">> Exiting vector loading")
+                print(">> Exiting vector loading. Loaded", i, "vectors.")
                 break
             else:
                 # Print status message every 20% words loaded
