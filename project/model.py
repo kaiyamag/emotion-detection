@@ -21,8 +21,7 @@ DATASET_SIZE = 1000
 """
 class Model:
     # Attributes:
-    text = "A normal Denny's, Spires-like coffee shop in Los Angeles. It's about 9:00 in the morning. While the place isn't jammed, there's a healthy number of people drinking coffee, munching on bacon and eating eggs.Two of these people are a YOUNG MAN and a YOUNG WOMAN. The Young Man has a slight working-class English accent and, like his fellow countryman, smokes cigarettes like they're going out of style.It is impossible to tell where the Young Woman is from or how old she is; everything she does contradicts something she did. The boy and girl sit in a booth. Their dialogue is to be said in a rapid pace 'HIS GIRL FRIDAY' fashion."
-
+    
     # Initializer
     def __init__(self):
         self.filename = "C:\\Users\\aeble\\Documents\\CS_200_Projects\\Junior_IS\\wiki-news-300d-1M.vec"
@@ -60,12 +59,12 @@ class Model:
         )     
 
         # Output dense layer: Outputs a vector of length 28 with sigmoid activation 
-        self.model.add(Dense(emotion_vec_len, activation='sigmoid'))
+        self.model.add(Dense(emotion_vec_len, activation='softmax'))
 
         self.model.compile(
             loss='categorical_crossentropy',
             optimizer=RMSprop(learning_rate=0.01),
-            metrics=['categorical_crossentropy', 'accuracy']    # 'val_acc', 'val_loss'
+            metrics=['categorical_crossentropy', 'accuracy']
         )
 
         return self.model
@@ -176,7 +175,7 @@ class Model:
 
         self.model.fit(self.x_train, self.y_train, 
             batch_size=128, 
-            epochs=1,
+            epochs=10,
             validation_split = val_split
         )
 
@@ -212,7 +211,8 @@ class Model:
     """
     def to_binary(self, vec):
         # THRESHOLD VALUE: any float greater than or equal to 0.5 represents a positive identification of that emotion in the sample
-        binary_vec = list(map(lambda n: int(n >= 0.5), vec))
+        threshold = 0.0357
+        binary_vec = list(map(lambda n: int(n >= threshold), vec))
         
         # Alternate method
         #binary_vec = []
@@ -258,8 +258,8 @@ class Model:
             prediction = np.array(self.to_binary(self.y_pred[i]))
 
             # DEBUG
-            # print("Expected:", expected)
-            # print("Prediction:", prediction)
+            print("Expected:  ", expected)
+            print("Prediction:", prediction)
 
             try:
                 assert (len(expected) == len(prediction)), "Prediction and test vector must be the same length"
@@ -337,7 +337,7 @@ def main():
     print("\n\nDone building y_train, shape", my_model.y_train.shape)
     print(my_model.y_train)
 
-    test_split = -50
+    test_split = 0.2
     my_model.build_test_sets(test_split)
     print("Done building x_test, shape", my_model.x_test.shape)
     #print(my_model.x_test)
