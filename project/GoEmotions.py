@@ -1,6 +1,5 @@
 import tensorflow as tf
 import tensorflow_datasets as tf_datasets
-
 from itertools import islice
 
 
@@ -10,7 +9,7 @@ class GoEmotions:
     # Attributes
     dataset = []
     master_emotions = ['admiration',  'amusement',  'anger', 'annoyance', 'approval', 'caring', 'confusion', 'curiosity',  'desire', 'disappointment', 'disapproval',  'disgust', 'embarrassment',  'excitement',  'fear', 'gratitude',  'grief', 'joy',  'love', 'nervousness', 'neutral', 'optimism', 'pride', 'realization', 'relief', 'remorse',  'sadness',  'surprise']
-
+    
     # Initializer
     def __init__(self):
         self.dataset = tf_datasets.load('goemotions', split='train')
@@ -48,7 +47,22 @@ class GoEmotions:
                 emotions.append(0)
 
         return emotions
+
     
+    """ Takes an element of this dataset. Returns a one-hot encoding of emotion labels for the datapoint at the given index. 
+    """
+    def extract_emotion_from_element(self, element):
+        emotions = []
+        
+        for emotion in self.master_emotions:
+            if (element[emotion].numpy() == True):
+                emotions.append(1)
+            else:
+                emotions.append(0)
+
+        return emotions
+    
+
     """ Returns a list of all emotions present (value of 1) in the given emotion one-hot-encoding vector
     """
     def get_one_hot_emotions(self, vec):

@@ -1,13 +1,15 @@
 from InputProcessor import InputProcessor
 from Token import Token
 from GoEmotions import GoEmotions
+from model import Model
 
 VERBOSE = True      # Enables debugging comments
 
 def main():
+    true_count = 0
+
     # Test functions that take no input
     test_void_functions = [test_InputProcessor, test_Token]
-    true_count = 0
 
     for func in test_void_functions:
         print("------ Testing", func.__name__, "------")
@@ -41,8 +43,20 @@ def main():
             true_count = true_count + 1
         else:
             print("------ Failed", func.__name__, "------")
+    
+    # Test functions that take a LSTM model as input
+    test_model_functions = [test_to_binary]
+    model = Model()
 
-    print(true_count, "/", len(test_void_functions) + len(test_input_processor_functions) + len(test_ge_model_functions), "tests succeeded")
+    for func in test_model_functions:
+        print("------ Testing", func.__name__, "------")
+        result = func(model)
+        if (result == True):
+            true_count = true_count + 1
+        else:
+            print("------ Failed", func.__name__, "------")
+
+    print(true_count, "/", len(test_void_functions) + len(test_input_processor_functions) + len(test_ge_model_functions) + len(test_model_functions), "tests succeeded")
 
     
 
@@ -125,6 +139,23 @@ def test_get_one_hot_emotions(ge_model):
         print("Expected emotion string 2:\t", expected_emotion_str_2)
     
     if ((emotion_str_1 == expected_emotion_str_1) and (emotion_str_2 == expected_emotion_str_2)):
+        return True
+    else:
+        return False
+
+
+""" Tests converting an output vector from the LSTM model to binary
+"""
+def test_to_binary(model):
+    original_vec = [0.41557246, 0.79271126, 0.6183406, 0.48028222, 0.82006705, 0.3712759, 0.5267268, 0.77032954, 0.6862337, 0.8176603, 0.54880893, 0.4775613, 0.44062287, 0.47111115, 0.57834375, 0.8547035, 0.10298577, 0.862301, 0.8155444, 0.13746636, 0.9751295, 0.8480313, 0.18635482, 0.6424982, 0.20606056, 0.2187916, 0.6942264, 0.6648725]
+    binary_vec = model.to_binary(original_vec)
+    expected_binary = [0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1]
+    
+    if (VERBOSE):
+        print("Binary:", binary_vec)
+        print('Expected:', expected_binary)
+    
+    if (expected_binary == binary_vec):
         return True
     else:
         return False
