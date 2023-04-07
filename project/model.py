@@ -241,6 +241,54 @@ class Model:
                 # If only prediction[n] is 1, false_pos++
                 # If expected[n] and prediction[n] are both 0, true_neg++
                 # If only prediction[n] is 0, false_neg++
+        
+        true_pos = 0
+        false_pos = 0
+        true_neg = 0
+        false_neg = 0
+        
+        try:
+            assert (len(self.y_pred) == len(self.y_test)), "y_pred and y_test must be the same length"
+        except AssertionError as exc:
+            print("Error:", exc)
+            return -1
+        
+        for i in range(len(self.y_pred)):
+            expected = self.y_test[i]
+            prediction = np.array(self.to_binary(self.y_pred[i]))
+
+            # DEBUG
+            # print("Expected:", expected)
+            # print("Prediction:", prediction)
+
+            try:
+                assert (len(expected) == len(prediction)), "Prediction and test vector must be the same length"
+            except AssertionError as exc:
+                print("Error:", exc)
+                return -1
+
+            for n in range(len(expected)):
+                if (expected[n] == 1 and prediction[n] == 1):
+                    true_pos = true_pos + 1
+                    # print("True positive")
+                elif (prediction[n] == 1):
+                    false_pos = false_pos + 1
+                    # print("False positive")
+                
+                if (expected[n] == 0 and prediction[n] == 0):
+                    true_neg = true_neg + 1
+                    # print("True negative")
+                elif (prediction[n] == 0):
+                    false_neg = false_neg + 1
+                    # print("False negative")
+        
+        # Calculate F1 Score
+        precision = true_pos / (true_pos + false_pos)
+        recall = true_pos / (true_pos + false_neg)
+
+        f1_score = 2 * (precision * recall) / (precision + recall)
+        
+        return f1_score
 
 
     """ Prints a confusion matrix from expected output and actual output
@@ -329,6 +377,9 @@ def main():
     print("Binary vec of size", len(binary_vec), ":", binary_vec)
 
     # my_model.print_confusion_mat()
+
+    f1_score = my_model.calculate_F1()
+    print("F1 score:", f1_score)
 
 
 if __name__ == '__main__':
