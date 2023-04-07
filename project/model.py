@@ -175,14 +175,14 @@ class Model:
 
         self.model.fit(self.x_train, self.y_train, 
             batch_size=128, 
-            epochs=10,
+            epochs=1,
             validation_split = val_split
         )
 
     
     """ Gets model prediction for given comment vector of shape (30, 300)
     """
-    def get_pred(self, model, comment_vec):
+    def get_pred(self, comment_vec):
         pred = self.model.predict(comment_vec, verbose=0)
 
         return pred
@@ -207,9 +207,11 @@ class Model:
         return self.y_pred
     
 
-    """ Converts a prediction vector of floats to a binary vector, for use in F1 score or confusion matrix
+    """ Converts a prediction vector of floats to a binary vector, for use in F1 score or confusion matrix.
+    Takes a vector of floats as input and returns a vector of the same length of 1's and 0's.
     """
-    def to_binary(self, vec):
+    @staticmethod
+    def to_binary(vec):
         # THRESHOLD VALUE: any float greater than or equal to 0.5 represents a positive identification of that emotion in the sample
         threshold = 0.0357
         binary_vec = list(map(lambda n: int(n >= threshold), vec))
@@ -225,9 +227,11 @@ class Model:
 
         return binary_vec
 
-    """ Calculates a F1 score for the predicted emotions.
+    """ Calculates a F1 score for the predicted emotions. Takes a list of emotion predictions as vectors
+    and a list of expected emotion vectors. Returns the F1 score as a float.
     """
-    def calculate_F1(self):
+    @staticmethod
+    def calculate_F1(y_pred, y_test):
         # F1 = 2 * (Precision * Recall) / (Precision + Recall)
         # Precision = # True Positives / (# True Positives + # False Positives)
         # Recall = # True Positives / (# True Positives + # False Negatives)
@@ -242,24 +246,30 @@ class Model:
                 # If expected[n] and prediction[n] are both 0, true_neg++
                 # If only prediction[n] is 0, false_neg++
         
+        # DEBUG:
+        # print("y_pred:", np.array(y_pred))
+
         true_pos = 0
         false_pos = 0
         true_neg = 0
         false_neg = 0
         
         try:
-            assert (len(self.y_pred) == len(self.y_test)), "y_pred and y_test must be the same length"
+            assert (len(y_pred) == len(y_test)), "y_pred and y_test must be the same length"
         except AssertionError as exc:
             print("Error:", exc)
             return -1
         
-        for i in range(len(self.y_pred)):
-            expected = self.y_test[i]
-            prediction = np.array(self.to_binary(self.y_pred[i]))
+        for i in range(len(y_pred)):
+            expected = y_test[i]
+            prediction = np.array(Model.to_binary(y_pred[i]))
 
             # DEBUG
-            print("Expected:  ", expected)
-            print("Prediction:", prediction)
+            # if (i % 20 == 0):
+            #     print("i:", i, ", length of y_pred:", len(y_pred))
+            #     print("Original:", y_pred[i])
+            #     print("Expected:  ", expected)
+            #     print("Prediction:", prediction)
 
             try:
                 assert (len(expected) == len(prediction)), "Prediction and test vector must be the same length"
@@ -373,12 +383,12 @@ def main():
     print("y_pred array:", my_model.y_pred)
     # print("One prediction:", my_model.y_pred[1])
 
-    binary_vec = my_model.to_binary(my_model.y_pred[1])
+    binary_vec = Model.to_binary(my_model.y_pred[1])
     print("Binary vec of size", len(binary_vec), ":", binary_vec)
 
     # my_model.print_confusion_mat()
 
-    f1_score = my_model.calculate_F1()
+    f1_score = Model.calculate_F1(my_model.y_pred, my_model.y_test)
     print("F1 score:", f1_score)
 
 
