@@ -10,6 +10,8 @@ class GoEmotions:
     dataset = []
     master_emotions = ['admiration',  'amusement',  'anger', 'annoyance', 'approval', 'caring', 'confusion', 'curiosity',  'desire', 'disappointment', 'disapproval',  'disgust', 'embarrassment',  'excitement',  'fear', 'gratitude',  'grief', 'joy',  'love', 'nervousness', 'neutral', 'optimism', 'pride', 'realization', 'relief', 'remorse',  'sadness',  'surprise']
     
+    std_length = 28
+    
     # Initializer
     def __init__(self):
         self.dataset = tf_datasets.load('goemotions', split='train')

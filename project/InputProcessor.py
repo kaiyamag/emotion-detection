@@ -18,6 +18,8 @@ class InputProcessor:
     vector_data = {}    # A dictionary where the key is a string and the value is a list of floats (300-D vector)
     tokenized_str = []  # A list of tokens corresponding to comment text
 
+    std_length = 300
+
     # Initializer
     def __init__(self, ft_filename):
         self.ft_filename = ft_filename
@@ -74,7 +76,7 @@ class InputProcessor:
         #print("Creating empty")
         # TODO: Should this return an empty list or a random vector? (check literature)
         empty = []
-        for i in range(300):
+        for i in range(self.std_length):
             empty.append(0.0)
 
         return empty
@@ -103,7 +105,7 @@ class InputProcessor:
 
         # Make empty 300-D vector    
         empty = []
-        for i in range(300):
+        for i in range(self.std_length):
             empty.append(0.0)
         
         # Fill remaining list spots with empty vectors, up to capacity of MAX_STR_LENGTH
