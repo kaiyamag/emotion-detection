@@ -21,6 +21,24 @@ DATASET_SIZE = 1000
 """
 class Model:
     # Attributes:
+
+    # Model building
+    comment_len = 30
+    dropout_rate = 0.1
+    lstm_size = 128
+    lstm_actv = 'tanh'
+    output_actv = 'softmax'
+    learning_rate = 0.01
+
+    # Model training
+    validation_split = 0.1
+    test_split = 0.2
+    batch_size = 128
+    num_epochs = 1
+
+    # Binary threshold
+    bin_threshold = 0.0357
+
     
     # Initializer
     def __init__(self):
@@ -38,32 +56,28 @@ class Model:
     """Creates new Keras LSTM and compiles. Function from ANN Course example
     """
     def build_model(self):
-        # Testing
-        # chars = sorted(list(set(self.text)))
-        # seqlen = 10
-        comment_len = 30 # TODO: Remove magic numbers, replace w/ class constant or expression 
-        word_embedding_len = 300
-        emotion_vec_len = 28
-        dropout_rate = 0.1
+        comment_len = self.comment_len
+        word_embedding_len = self.input_processor.std_length
+        emotion_vec_len = self.ge.std_length
+        dropout_rate = self.dropout_rate
 
         # Create model
         self.model = Sequential()
-        # model.add(LSTM(128, input_shape=(seqlen, len(chars)), return_sequences=True))     # Test w/ RNN and film script input
-
-        # LSTM layer: Takes in vectors of shape (30, 300) and outputs vector of length 128
+        
+        # LSTM layer: Takes in vectors of shape (30, 300) and outputs vector of length lstm_size
         self.model.add(LSTM(
-            128, 
+            self.lstm_size, 
             input_shape=(comment_len, word_embedding_len), 
-            activation='tanh',
+            activation=self.lstm_actv,
             dropout=dropout_rate)
         )     
 
         # Output dense layer: Outputs a vector of length 28 with sigmoid activation 
-        self.model.add(Dense(emotion_vec_len, activation='softmax'))
+        self.model.add(Dense(emotion_vec_len, activation=self.output_actv))
 
         self.model.compile(
             loss='categorical_crossentropy',
-            optimizer=RMSprop(learning_rate=0.01),
+            optimizer=RMSprop(learning_rate=self.learning_rate),
             metrics=['categorical_crossentropy', 'accuracy']
         )
 
@@ -171,12 +185,10 @@ class Model:
     """ Trains model with x and y training data
     """
     def train_model(self, model):
-        val_split = 0.1
-
         self.model.fit(self.x_train, self.y_train, 
-            batch_size=128, 
-            epochs=1,
-            validation_split = val_split
+            batch_size=self.batch_size, 
+            epochs=self.num_epochs,
+            validation_split = self.validation_split
         )
 
     
@@ -213,7 +225,7 @@ class Model:
     @staticmethod
     def to_binary(vec):
         # THRESHOLD VALUE: any float greater than or equal to 0.5 represents a positive identification of that emotion in the sample
-        threshold = 0.0357
+        threshold = Model.bin_threshold
         binary_vec = list(map(lambda n: int(n >= threshold), vec))
         
         # Alternate method
@@ -347,7 +359,7 @@ def main():
     print("\n\nDone building y_train, shape", my_model.y_train.shape)
     print(my_model.y_train)
 
-    test_split = 0.2
+    test_split = Model.test_split
     my_model.build_test_sets(test_split)
     print("Done building x_test, shape", my_model.x_test.shape)
     #print(my_model.x_test)
@@ -365,23 +377,22 @@ def main():
     my_model.train_model(my_model)
     print("Done training model")
 
-    # # Make comment vector for prediction testing
-    # str = "I am excited to eat pie"
-    # tokenized_str = my_model.input_processor.tokenize(str)
-    # comment_vec = my_model.input_processor.get_vectorized_str(tokenized_str)
-    # comment_vec = np.array(comment_vec)[np.newaxis, :, :]
-    # print("Comment: '", str, "' shape:", np.array(comment_vec).shape)
+    # Make comment vector for prediction testing
+    str = "I am excited to eat pie"
+    tokenized_str = my_model.input_processor.tokenize(str)
+    comment_vec = my_model.input_processor.get_vectorized_str(tokenized_str)
+    comment_vec = np.array(comment_vec)[np.newaxis, :, :]
+    print("Comment: '", str, "' shape:", np.array(comment_vec).shape)
 
-    # pred = my_model.get_pred(my_model, comment_vec)
-    # print("Done getting prediction")
+    pred = my_model.get_pred(comment_vec)
+    print("Done getting prediction")
 
-    # print("Prediction shape:", np.array(pred).shape)
-    # print("Prediction:", pred)
+    print("Prediction shape:", np.array(pred).shape)
+    print("Prediction:", pred)
 
     my_model.test_model()
     print("Done testing model, y_pred shape", my_model.y_pred.shape)
     print("y_pred array:", my_model.y_pred)
-    # print("One prediction:", my_model.y_pred[1])
 
     binary_vec = Model.to_binary(my_model.y_pred[1])
     print("Binary vec of size", len(binary_vec), ":", binary_vec)
