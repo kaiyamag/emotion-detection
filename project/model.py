@@ -362,7 +362,6 @@ def main():
     test_split = Model.test_split
     my_model.build_test_sets(test_split)
     print("Done building x_test, shape", my_model.x_test.shape)
-    #print(my_model.x_test)
 
     print("\n\nDone building y_test, shape", my_model.y_test.shape)
     #print(my_model.y_test)
@@ -370,37 +369,91 @@ def main():
     print("Done reshaping x_train, shape", my_model.x_train.shape)
     print("Done reshaping y_train, shape", my_model.y_train.shape)
 
-    my_model.build_model()
-    print("\n\nDone building model")
-    print(my_model.model.summary())
+    #---------------- Transition to Fine Tuning --------------------
 
-    my_model.train_model(my_model)
-    print("Done training model")
+    fine_tune(my_model)
 
-    # Make comment vector for prediction testing
-    str = "I am excited to eat pie"
-    tokenized_str = my_model.input_processor.tokenize(str)
-    comment_vec = my_model.input_processor.get_vectorized_str(tokenized_str)
-    comment_vec = np.array(comment_vec)[np.newaxis, :, :]
-    print("Comment: '", str, "' shape:", np.array(comment_vec).shape)
+    # my_model.build_model()
+    # print("\n\nDone building model")
+    # print(my_model.model.summary())
 
-    pred = my_model.get_pred(comment_vec)
-    print("Done getting prediction")
+    # my_model.train_model(my_model)
+    # print("Done training model")
 
-    print("Prediction shape:", np.array(pred).shape)
-    print("Prediction:", pred)
+    # # Make comment vector for prediction testing
+    # str = "I am excited to eat pie"
+    # tokenized_str = my_model.input_processor.tokenize(str)
+    # comment_vec = my_model.input_processor.get_vectorized_str(tokenized_str)
+    # comment_vec = np.array(comment_vec)[np.newaxis, :, :]
+    # print("Comment: '", str, "' shape:", np.array(comment_vec).shape)
 
-    my_model.test_model()
-    print("Done testing model, y_pred shape", my_model.y_pred.shape)
-    print("y_pred array:", my_model.y_pred)
+    # pred = my_model.get_pred(comment_vec)
+    # print("Done getting prediction")
 
-    binary_vec = Model.to_binary(my_model.y_pred[1])
-    print("Binary vec of size", len(binary_vec), ":", binary_vec)
+    # print("Prediction shape:", np.array(pred).shape)
+    # print("Prediction:", pred)
 
-    # my_model.print_confusion_mat()
+    # my_model.test_model()
+    # print("Done testing model, y_pred shape", my_model.y_pred.shape)
+    # print("y_pred array:", my_model.y_pred)
 
-    f1_score = Model.calculate_F1(my_model.y_pred, my_model.y_test)
-    print("F1 score:", f1_score)
+    # binary_vec = Model.to_binary(my_model.y_pred[1])
+    # print("Binary vec of size", len(binary_vec), ":", binary_vec)
+
+    # # my_model.print_confusion_mat()
+
+    # f1_score = Model.calculate_F1(my_model.y_pred, my_model.y_test)
+    # print("F1 score:", f1_score)
+
+
+def fine_tune(my_model):
+    tests = {}
+
+    # Generate test configurations
+    dropout_rate_default = 0.1
+    learning_rate_default = 0.01
+    batch_size_default = 128
+    num_epochs_default = 10
+
+    dropout_rate_set = [0.0, 0.1, 0.2, 0.3]
+    learning_rate_set = [0.01, 0.05, 0.1]
+    batch_size_set = [64, 128, 256, 512]
+    num_epochs_set = [1, 10, 50, 100]
+
+    # Test all possible dropout rates
+    for dr in dropout_rate_set:
+        # Update model configuration
+
+        # comment_len
+        # dropout_rate
+        # lstm_size
+        # lstm_actv
+        # output_actv
+        # learning_rate
+        # validation_split
+        # test_split
+        # batch_size
+        # num_epochs
+        # bin_threshold 
+
+        my_model.dropout_rate = dr
+        my_model.learning_rate = learning_rate_default
+        my_model.batch_size = batch_size_default
+        my_model.num_epochs = num_epochs_default
+
+        params = {'dropout_rate': my_model.dropout_rate, 'learning_rate': my_model.learning_rate, 'batch_size': my_model.batch_size, 'num_epochs': my_model.num_epochs}
+
+        # Build, train, and test model
+        my_model.build_model()
+        my_model.train_model(my_model)
+        my_model.test_model()
+
+        # Add model score to test results
+        f1_score = Model.calculate_F1(my_model.y_pred, my_model.y_test)
+        tests[f1_score] = params
+
+    print("Fine-tuning test results:")
+    print(tests)
 
 
 if __name__ == '__main__':
