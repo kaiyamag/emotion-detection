@@ -48,11 +48,7 @@ def main():
         tokenized_str = my_model.input_processor.tokenize(text)
         vec = my_model.input_processor.get_vectorized_str(tokenized_str)
         vec = np.array(vec)[np.newaxis, :, :]
-
-        # DEBUG
-        print("Comment: '", vec, "' shape:", vec.shape)
-
-        pred = my_model.get_pred(vec)
+        pred = Model.to_binary(my_model.get_pred(vec)[0])
         emotions = my_model.ge.get_one_hot_emotions(pred)
         print("Predicted emotions:", emotions)
 
