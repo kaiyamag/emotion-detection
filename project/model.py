@@ -406,7 +406,14 @@ def main():
     # print("F1 score:", f1_score)
 
 
+""" Runs hardcoded parameter fine tuning tests on many variations of the model.
+"""
 def fine_tune(my_model):
+    # Open output file
+    file = open('test_output.txt', 'w')
+    file.write("Test Output:\n")
+    file.close()
+
     tests = {}
 
     # Generate test configurations
@@ -414,14 +421,24 @@ def fine_tune(my_model):
     learning_rate_default = 0.01
     batch_size_default = 128
     num_epochs_default = 10
+    bin_threshold_default = 0.0357
 
     dropout_rate_set = [0.0, 0.1, 0.2, 0.3]
-    learning_rate_set = [0.01, 0.05, 0.1]
+    learning_rate_set = [0.01, 0.05, 0.1, 0.2]
     batch_size_set = [64, 128, 256, 512]
     num_epochs_set = [1, 10, 50, 100]
+    bin_threshold_set = [0.0357, 0.1, 0.2, 0.75]   # 0.0357 = 1/28 
 
-    # Test all possible dropout rates
-    for dr in dropout_rate_set:
+    configs = make_test(dropout_rate_set, learning_rate_set, batch_size_set, num_epochs_set, bin_threshold_set)
+    print(len(configs), "Testing configurations:")
+    i = 0
+    lines = []
+
+    # Test all possible binary threshold rates
+    for config in configs[:10]:
+        print(">>> Config", i, "of", len(configs), "<<<")
+        i = i + 1
+
         # Update model configuration
 
         # comment_len
@@ -436,12 +453,14 @@ def fine_tune(my_model):
         # num_epochs
         # bin_threshold 
 
-        my_model.dropout_rate = dr
-        my_model.learning_rate = learning_rate_default
-        my_model.batch_size = batch_size_default
-        my_model.num_epochs = num_epochs_default
+        my_model.dropout_rate = config['dropout_rate']
+        my_model.learning_rate = config['learning_rate']
+        my_model.batch_size = config['batch_size']
+        my_model.num_epochs = config['num_epochs']
+        my_model.bin_threshold = config['bin_threshold']
 
-        params = {'dropout_rate': my_model.dropout_rate, 'learning_rate': my_model.learning_rate, 'batch_size': my_model.batch_size, 'num_epochs': my_model.num_epochs}
+        # params = {'dropout_rate': my_model.dropout_rate, 'learning_rate': my_model.learning_rate, 'batch_size': my_model.batch_size, 'num_epochs': my_model.num_epochs, 'bin_threshold': my_model.bin_threshold}
+        params = config
 
         # Build, train, and test model
         my_model.build_model()
@@ -452,9 +471,43 @@ def fine_tune(my_model):
         f1_score = Model.calculate_F1(my_model.y_pred, my_model.y_test)
         tests[f1_score] = params
 
-    print("Fine-tuning test results:")
-    print(tests)
+        temp = str(f1_score) + str(params) + "\n"
+        lines.append(temp)
 
+        # Write line buffer to file
+        if (i % 5 == 0):
+            file = open('test_output.txt', 'a')
+            file.writelines(lines)
+            file.close()
+        
+
+    print("Fine-tuning test results:")
+    # print(tests)
+
+    # max_f1 = max(tests)
+    # print("Max:")
+    # print(max_f1)
+
+    # From GfG
+    for i in sorted(tests.keys(), reverse=True):
+        print(i, tests[i])
+    
+
+""" Returns a list of all possible parameter configurations using given parameter sets.
+"""
+def make_test(dropout_rate_set, learning_rate_set, batch_size_set, num_epochs_set, bin_threshold_set):
+    configs = []
+
+    # Lists every combination of parameters in given sets. 
+    for dr in dropout_rate_set:
+        for lr in learning_rate_set:
+            for b in batch_size_set:
+                for e in num_epochs_set:
+                    for bt in bin_threshold_set:
+                        temp = {'dropout_rate': dr, 'learning_rate': lr, 'batch_size': b, 'num_epochs': e, 'bin_threshold': bt}
+                        configs.append(temp)
+
+    return configs
 
 if __name__ == '__main__':
     main()
