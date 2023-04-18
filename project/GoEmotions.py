@@ -72,7 +72,7 @@ class GoEmotions:
 
         # Check for invalid input
         if (not (len(vec) == len(self.master_emotions))):
-            print("Length of given vector (", len(vec), "does not equal number of emotions", len(self.master_emotions))
+            print("Length of given vector (", len(vec), ") does not equal number of emotions (", len(self.master_emotions), ")")
             return None
 
         emotions = []
