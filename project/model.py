@@ -4,6 +4,8 @@
 import io
 import numpy as np
 import math
+import random
+import time
 from InputProcessor import InputProcessor
 from Token import Token
 from GoEmotions import GoEmotions
@@ -18,7 +20,7 @@ import keras
 # from sklearn.metrics import confusion_matrix
 
 # Number of comments to use from GoEmotions dataset
-DATASET_SIZE = 1000
+DATASET_SIZE = 10000
 
 """ Manages the Tensorflow neural network model. 
 """
@@ -90,8 +92,6 @@ class Model:
     and y_train are still in their original order. Takes test split as a percentage.
     """
     def build_test_sets(self, split):
-        print("Building x and y test splits")
-
         # Check that given split is a percentage between 0 and 1. Split defaults to 0.2 if exception is thrown
         try:
             assert (split >= 0 and split <= 1.0), "Testing split must be between 0 and 1."
@@ -107,7 +107,6 @@ class Model:
             return -1
 
         split_index = math.floor(split * len(self.x_train))
-        print("Split index:", split_index)
 
         # Gets split% last elements of x and y train sets to use for test sets
         self.x_test = self.x_train[-split_index:]
@@ -283,9 +282,21 @@ class Model:
                 elif (prediction[n] == 0):  # False negative detected
                     false_neg = false_neg + 1
         
-        # Calculate F1 Score
+        # Calculate F1 Score and check for divide by zero errors
+        if (true_pos + false_pos == 0):
+            print("Divide by zero error while calculating F1-score")
+            return 0
+        
+        if (true_pos + false_neg == 0):
+            print("Divide by zero error while calculating F1-score")
+            return 0
+
         precision = true_pos / (true_pos + false_pos)
         recall = true_pos / (true_pos + false_neg)
+
+        if (precision + recall == 0):
+            print("Divide by zero error while calculating F1-score")
+            return 0
 
         f1_score = 2 * (precision * recall) / (precision + recall)
         
@@ -402,20 +413,26 @@ def fine_tune(my_model):
     batch_size_default = 128
     num_epochs_default = 10
     bin_threshold_default = 0.0357
+    lstm_size_default = 128
 
-    dropout_rate_set = [0.0, 0.1, 0.3]
+    dropout_rate_set = [0.1, 0.3, 0.5]
     learning_rate_set = [0.01, 0.05, 0.1]
     batch_size_set = [64, 128, 512]
-    num_epochs_set = [10, 50, 100]
-    bin_threshold_set = [0.0357, 0.1, 0.2]   # 0.0357 = 1/28 
+    num_epochs_set = [20, 100, 200]
+    bin_threshold_set = [0.0357, 0.1, 0.5]   # 0.0357 = 1/28 
+    lstm_size_set = [128, 1024, 4096]
 
-    configs = make_test(dropout_rate_set, learning_rate_set, batch_size_set, num_epochs_set, bin_threshold_set)
+    configs = make_test(dropout_rate_set, learning_rate_set, batch_size_set, num_epochs_set, bin_threshold_set, lstm_size_set)
+
+    # Shuffle configs to allow for selection of a random subset of configs to test
+    random.shuffle(configs)
     print(len(configs), "Testing configurations:")
+
     i = 0
     lines = []
 
     # Test all possible binary threshold rates
-    for config in configs[:5]:
+    for config in configs[:300]:
         print(">>> Config", i, "of", len(configs), "<<<")
         i = i + 1
 
@@ -438,6 +455,7 @@ def fine_tune(my_model):
         my_model.batch_size = config['batch_size']
         my_model.num_epochs = config['num_epochs']
         my_model.bin_threshold = config['bin_threshold']
+        my_model.lstm_size = config['lstm_size']
 
         # params = {'dropout_rate': my_model.dropout_rate, 'learning_rate': my_model.learning_rate, 'batch_size': my_model.batch_size, 'num_epochs': my_model.num_epochs, 'bin_threshold': my_model.bin_threshold}
         params = config
@@ -459,6 +477,9 @@ def fine_tune(my_model):
             file = open('test_output.txt', 'a')
             file.writelines(lines)
             file.close()
+
+            # COOLDOWN
+            time.sleep(120)
         
 
     print("Fine-tuning test results:")
@@ -467,10 +488,13 @@ def fine_tune(my_model):
     for i in sorted(tests.keys(), reverse=True):
         print(i, tests[i])
     
+    print("Remaining configs:")
+    print(configs[300:])
+    
 
 """ Returns a list of all possible parameter configurations using given parameter sets.
 """
-def make_test(dropout_rate_set, learning_rate_set, batch_size_set, num_epochs_set, bin_threshold_set):
+def make_test(dropout_rate_set, learning_rate_set, batch_size_set, num_epochs_set, bin_threshold_set, lstm_size_set):
     configs = []
 
     # Lists every combination of parameters in given sets. 
@@ -479,8 +503,9 @@ def make_test(dropout_rate_set, learning_rate_set, batch_size_set, num_epochs_se
             for b in batch_size_set:
                 for e in num_epochs_set:
                     for bt in bin_threshold_set:
-                        temp = {'dropout_rate': dr, 'learning_rate': lr, 'batch_size': b, 'num_epochs': e, 'bin_threshold': bt}
-                        configs.append(temp)
+                        for ls in lstm_size_set:
+                            temp = {'dropout_rate': dr, 'learning_rate': lr, 'batch_size': b, 'num_epochs': e, 'bin_threshold': bt, 'lstm_size': ls}
+                            configs.append(temp)
 
     return configs
 
