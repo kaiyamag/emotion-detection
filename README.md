@@ -1,6 +1,9 @@
 # Jr. I.S. - Emotion Detection in Text with a Long Short Term Memory Model
 The goal of this project is to build a machine learning model for emotion detection in short text samples. Through a command-line interface, users enter a sentence of up to 30 words, and the model prints a list of all the emotions identified in the text. A Long Short-Term Memory model is used due to its strength in processing sequence data, such as sentences. The machine learning model is trained on the Google GoEmotions dataset of Reddit comments labelled with emotions and converted to word vectors using transfer learning from the FastText word embedding model. Since Keras provides basic functions for training LSTMs, my software focus was writing data preprocessing functions, experimenting with different model architectures, and writing a function to evaluate the accuracy of the model.
 
+## Running the Emotion Detection Model
+The model is initialized and accessed through the `UserInterface` class. Install all dependencies listed in `requirements.txt`. Run `UserInterface.py` and follow prompts in the command-line interface to enter text and recieve emotion predictions. To run unit tests, run `unit_tests.py`, which will print out functions that fail the tests. Model fine-tuning tests can be run by running the main function in `model.py`.
+
 ## Class Documentation
 This section explains the role of each class and its functions.
 
@@ -9,10 +12,11 @@ Manages the user interface for interacting with the LSTM model.
 
 *No class attributes*
 
-*Class functions:*
-**init():** Initializes a new Model instance, to be used as the primary model for all training and predictions.
+*Class functions:* 
 
-**setup_model(self)** Prepares the model for predictions by loading training datasets, building, and training the model.
+**init():** Initializes a new `Model` instance, to be used as the primary model for all training and predictions.
+
+**setup_model(self):** Prepares the model for predictions by loading training datasets, building, and training the model.
 
 **main():** Prompts the user for text to enter into the emotion detection model. Prints a list of emotions predicted for that text sample.
 
@@ -20,34 +24,28 @@ Manages the user interface for interacting with the LSTM model.
 Manages the user interface for interacting with the LSTM model.
 
 *Class attributes:*
-*Model building*
-comment_len
-dropout_rate
-lstm_size
-lstm_actv
-output_actv
-learning_rate
-
-*Model training*
-validation_split
-test_split
-batch_size
-num_epochs
-
-*Binary threshold*
-bin_threshold
 
 **filename:** File location for FastText word embedding vectors.
+
 **x_train:** Stores the x training data (word embedding representation of text samples) 
+
 **y_train:** Stores the y training data (emotion vectors corresponding to text samples)
+
 **x_test:** Stores the x testing data (word embedding representation of text samples) 
+
 **y_test:** Stores the y testing data (emotion vectors corresponding to text samples)
+
 **y_pred** Stores y predictions (emotion vectors of floats corresponding to text samples)
+
 **ge:** An instance of the `GoEmotions` class for data processing
+
 **input_processor:** An instance of the `InputProcessor` class for data processing
+
 **model:** Stores a Keras Sequential model
 
+
 *Class functions:*
+
 **init():** Defines and intializes class attributes.
 
 **build_model(self):** Creates a new Keras LSTM and compiles it.
@@ -68,45 +66,53 @@ bin_threshold
 
 **main():** Tests model functions.
 
-**fine_tune(my_model):** Runs hardcoded parameter fine tuning tests on many variations of the model. Takes an instance of a Model. Prints F1-score and parameter configurations for each test in 'test_output.txt'.
+**fine_tune(my_model):** Runs hardcoded parameter fine tuning tests on many variations of the model. Takes an instance of a `Model`. Prints F1-score and parameter configurations for each test in `test_output.txt`.
 
 **make_test(dropout_rate_set, learning_rate_set, batch_size_set, num_epochs_set, bin_threshold_set):** Returns a list of all possible parameter configurations using given parameter sets.
+
 
 ### InputProcessor
 Handles generation of list of word embeddings from FastText pre-trained embeddings. 
 
-*Global class constants*
+*Global class constants:*
+
 **NUM_WORDS:** Number of word vectors to grab from pre-trained vectors. Limited to 100,000 for debugging.
+
 **MAX_STR_LENGTH:** Maximum length of comment text to process.
 
 *Class attributes:*
-**ft_filename** FastText word embeddings file location.
-**tokenized_str** A list of tokens corresponding to comment text.
-**vectorized_str** A list of word vectors corresponding to words from tokenized_str.
-**vector_data** A dictionary where the key is a string and the value is a list of floats (300-D vector).
+
+**ft_filename:** FastText word embeddings file location.
+
+**tokenized_str:** A list of tokens corresponding to comment text.
+
+**vectorized_str:** A list of word vectors corresponding to words from tokenized_str.
+
+**vector_data:** A dictionary where the key is a string and the value is a list of floats (300-D vector).
 
 *Class functions:*
-**init(self, ft_filename):** Creates a new InputProcessor instance from given FastText word embeddings file location. Calls load_vectors.
+
+**init(self, ft_filename):** Creates a new `InputProcessor` instance from given FastText word embeddings file location. Calls load_vectors.
 
 **load_vectors(self):** From FastText documentation. Gets pre-trained word vectors. Populates and returns the vector_data dictionary with words and their corresponding vector representations.
 
 **get_vector(self, token):** Returns a 300-D vector (as a list) of floats corresponding to the given word. If the word does not exist in the dictionary, returns a list of 0's.
 
-**get_vectorized_str(self, tokenized_str):** Takes a list of up to MAX_STR_LENGTH Tokens. Populates and returns vectorized_str, a list of vector representations of those tokens, filled with empty vectors if less than MAX_STR_LENGTH tokens were grabbed.
+**get_vectorized_str(self, tokenized_str):** Takes a list of up to `MAX_STR_LENGTH` `Tokens`. Populates and returns `vectorized_str`, a list of vector representations of those tokens, filled with empty vectors if less than `MAX_STR_LENGTH` tokens were grabbed.
 
 **get_vector_data(self):** Getter method. Returns dictionary of vector data.
 
-**tokenize(self, str):** Converts a string to a list of Tokens. Returns a list of Tokens.
+**tokenize(self, str):** Converts a string to a list of `Tokens`. Returns a list of `Tokens`.
 
 **get_tokenized_str(self):** Gets tokenized string.
 
 
 ## Code Citations:
 
-**Loading the GoEmotions dataset** Used example load function from [GoEmotions documentation](https://github.com/tensorflow/models/blob/fa3ba13e2b16782f3b0f483d24f4110877264e61/research/seq_flow_lite/demo/colab/emotion_colab.ipynb) to implement GoEmotions class initializer.
+**Loading the GoEmotions dataset:** Used example load function from [GoEmotions documentation](https://github.com/tensorflow/models/blob/fa3ba13e2b16782f3b0f483d24f4110877264e61/research/seq_flow_lite/demo/colab/emotion_colab.ipynb) to implement GoEmotions class initializer.
 
-**Loading the FastText dataset** Used example load function from [FastText documentation](https://fasttext.cc/docs/en/english-vectors.html) to implement InputProcessor load_vectors function.
+**Loading the FastText dataset:** Used example load function from [FastText documentation](https://fasttext.cc/docs/en/english-vectors.html) to implement InputProcessor load_vectors function.
 
-**Accessing the nth key of a dictionary** Took inspiration from [a StackOverflow answer](https://stackoverflow.com/questions/16977385/extract-the-nth-key-in-a-python-dictionary/59740280#59740280) to get the nth key of a dictionary .
+**Accessing the nth key of a dictionary:** Took inspiration from [a StackOverflow answer](https://stackoverflow.com/questions/16977385/extract-the-nth-key-in-a-python-dictionary/59740280#59740280) to get the nth key of a dictionary .
 
-**Artificial Neural Networks course example** Followed the build_model() function from a course template. Template by Lucian Leahu, DIS Study Abroad.
+**Artificial Neural Networks course example:** Followed the build_model() function from a course template. Template by Lucian Leahu, DIS Study Abroad.
