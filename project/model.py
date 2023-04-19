@@ -28,7 +28,7 @@ class Model:
     # Model building
     comment_len = 30
     dropout_rate = 0.1
-    lstm_size = 128
+    lstm_size = 1024     # was 128
     lstm_actv = 'tanh'
     output_actv = 'softmax'
     learning_rate = 0.01
@@ -73,6 +73,11 @@ class Model:
             activation=self.lstm_actv,
             dropout=dropout_rate)
         )     
+
+        # Internal dense layers
+        self.model.add(Dense(512, activation='sigmoid'))
+        self.model.add(Dense(512, activation='sigmoid'))
+        self.model.add(Dense(256, activation='sigmoid'))
 
         # Output dense layer: Outputs a vector of length 28 with sigmoid activation 
         self.model.add(Dense(emotion_vec_len, activation=self.output_actv))
@@ -415,7 +420,7 @@ def fine_tune(my_model):
     lines = []
 
     # Test all possible binary threshold rates
-    for config in configs[:5]:
+    for config in configs[:1]:
         print(">>> Config", i, "of", len(configs), "<<<")
         i = i + 1
 
@@ -460,7 +465,6 @@ def fine_tune(my_model):
             file.writelines(lines)
             file.close()
         
-
     print("Fine-tuning test results:")
 
     # Print a dictionary code from Geeks for Geeks
