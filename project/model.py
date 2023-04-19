@@ -1,3 +1,6 @@
+# model.py
+# Kaiya Magnuson, April 2023
+
 import io
 import numpy as np
 import math
@@ -12,7 +15,7 @@ from tensorflow.keras.optimizers import RMSprop
 import keras
 
 # From Confusion Matrix example (https://stackoverflow.com/questions/2148543/how-to-write-a-confusion-matrix)
-from sklearn.metrics import confusion_matrix
+# from sklearn.metrics import confusion_matrix
 
 # Number of comments to use from GoEmotions dataset
 DATASET_SIZE = 1000
@@ -39,7 +42,6 @@ class Model:
     # Binary threshold
     bin_threshold = 0.0357
 
-    
     # Initializer
     def __init__(self):
         self.filename = "C:\\Users\\aeble\\Documents\\CS_200_Projects\\Junior_IS\\wiki-news-300d-1M.vec"
@@ -53,7 +55,7 @@ class Model:
         self.model = Sequential()
     
 
-    """Creates new Keras LSTM and compiles. Function from ANN Course example
+    """ Creates a new Keras LSTM and compiles it. Function from ANN Course example
     """
     def build_model(self):
         comment_len = self.comment_len
@@ -184,7 +186,7 @@ class Model:
 
     """ Trains model with x and y training data
     """
-    def train_model(self, model):
+    def train_model(self):
         self.model.fit(self.x_train, self.y_train, 
             batch_size=self.batch_size, 
             epochs=self.num_epochs,
@@ -224,19 +226,10 @@ class Model:
     """
     @staticmethod
     def to_binary(vec):
-        # THRESHOLD VALUE: any float greater than or equal to 0.5 represents a positive identification of that emotion in the sample
+        # THRESHOLD VALUE: any float greater than or equal to bin_threshold represents a positive identification of that emotion in the sample
         threshold = Model.bin_threshold
         binary_vec = list(map(lambda n: int(n >= threshold), vec))
         
-        # Alternate method
-        #binary_vec = []
-        # for i in range(len(vec)):
-        #     
-        #     if (vec[i] >= 0.5):
-        #         binary_vec.append(1)
-        #     else:
-        #         binary_vec.append(0)
-
         return binary_vec
 
     """ Calculates a F1 score for the predicted emotions. Takes a list of emotion predictions as vectors
@@ -258,9 +251,6 @@ class Model:
                 # If expected[n] and prediction[n] are both 0, true_neg++
                 # If only prediction[n] is 0, false_neg++
         
-        # DEBUG:
-        # print("y_pred:", np.array(y_pred))
-
         true_pos = 0
         false_pos = 0
         true_neg = 0
@@ -276,13 +266,6 @@ class Model:
             expected = y_test[i]
             prediction = np.array(Model.to_binary(y_pred[i]))
 
-            # DEBUG
-            # if (i % 20 == 0):
-            #     print("i:", i, ", length of y_pred:", len(y_pred))
-            #     print("Original:", y_pred[i])
-            #     print("Expected:  ", expected)
-            #     print("Prediction:", prediction)
-
             try:
                 assert (len(expected) == len(prediction)), "Prediction and test vector must be the same length"
             except AssertionError as exc:
@@ -290,19 +273,15 @@ class Model:
                 return -1
 
             for n in range(len(expected)):
-                if (expected[n] == 1 and prediction[n] == 1):
+                if (expected[n] == 1 and prediction[n] == 1):   # True positive detected
                     true_pos = true_pos + 1
-                    # print("True positive")
-                elif (prediction[n] == 1):
+                elif (prediction[n] == 1):  # False positive detected
                     false_pos = false_pos + 1
-                    # print("False positive")
                 
-                if (expected[n] == 0 and prediction[n] == 0):
+                if (expected[n] == 0 and prediction[n] == 0):   # True negative detected
                     true_neg = true_neg + 1
-                    # print("True negative")
-                elif (prediction[n] == 0):
+                elif (prediction[n] == 0):  # False negative detected
                     false_neg = false_neg + 1
-                    # print("False negative")
         
         # Calculate F1 Score
         precision = true_pos / (true_pos + false_pos)
@@ -346,7 +325,7 @@ class Model:
     #     return mat
 
 
-""" Test model functions
+""" Tests model functions.
 """
 def main():
     my_model = Model()
@@ -364,7 +343,6 @@ def main():
     print("Done building x_test, shape", my_model.x_test.shape)
 
     print("\n\nDone building y_test, shape", my_model.y_test.shape)
-    #print(my_model.y_test)
 
     print("Done reshaping x_train, shape", my_model.x_train.shape)
     print("Done reshaping y_train, shape", my_model.y_train.shape)
@@ -406,7 +384,9 @@ def main():
     # print("F1 score:", f1_score)
 
 
+
 """ Runs hardcoded parameter fine tuning tests on many variations of the model.
+Prints F1-score and parameter configurations for each test in 'test_output.txt'
 """
 def fine_tune(my_model):
     # Open output file
@@ -423,11 +403,11 @@ def fine_tune(my_model):
     num_epochs_default = 10
     bin_threshold_default = 0.0357
 
-    dropout_rate_set = [0.0, 0.1, 0.2, 0.3]
-    learning_rate_set = [0.01, 0.05, 0.1, 0.2]
-    batch_size_set = [64, 128, 256, 512]
-    num_epochs_set = [1, 10, 50, 100]
-    bin_threshold_set = [0.0357, 0.1, 0.2, 0.75]   # 0.0357 = 1/28 
+    dropout_rate_set = [0.0, 0.1, 0.3]
+    learning_rate_set = [0.01, 0.05, 0.1]
+    batch_size_set = [64, 128, 512]
+    num_epochs_set = [10, 50, 100]
+    bin_threshold_set = [0.0357, 0.1, 0.2]   # 0.0357 = 1/28 
 
     configs = make_test(dropout_rate_set, learning_rate_set, batch_size_set, num_epochs_set, bin_threshold_set)
     print(len(configs), "Testing configurations:")
@@ -435,7 +415,7 @@ def fine_tune(my_model):
     lines = []
 
     # Test all possible binary threshold rates
-    for config in configs[:10]:
+    for config in configs[:5]:
         print(">>> Config", i, "of", len(configs), "<<<")
         i = i + 1
 
@@ -464,7 +444,7 @@ def fine_tune(my_model):
 
         # Build, train, and test model
         my_model.build_model()
-        my_model.train_model(my_model)
+        my_model.train_model()
         my_model.test_model()
 
         # Add model score to test results
@@ -482,13 +462,8 @@ def fine_tune(my_model):
         
 
     print("Fine-tuning test results:")
-    # print(tests)
 
-    # max_f1 = max(tests)
-    # print("Max:")
-    # print(max_f1)
-
-    # From GfG
+    # Print a dictionary code from Geeks for Geeks
     for i in sorted(tests.keys(), reverse=True):
         print(i, tests[i])
     
