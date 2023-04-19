@@ -1,3 +1,6 @@
+# InputProcessor.py
+# Kaiya Magnuson, April 2023
+
 import io
 import numpy as np
 from Token import Token
@@ -26,7 +29,7 @@ class InputProcessor:
         self.load_vectors()
     
 
-    """From FastText documentation. Gets pre-trained word vectors. Populates and returns the vector_data dictionary with 
+    """ From FastText documentation. Gets pre-trained word vectors. Populates and returns the vector_data dictionary with 
     words and their corresponding vector representations.
     """
     def load_vectors(self):
@@ -55,7 +58,7 @@ class InputProcessor:
         return self.vector_data
 
 
-    """Returns a 300-D vector (as a list) of floats corresponding to the given word. If the word does not exist in the 
+    """ Returns a 300-D vector (as a list) of floats corresponding to the given word. If the word does not exist in the 
     dictionary, returns a list of 0's
     """
     def get_vector(self, token):
