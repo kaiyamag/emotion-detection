@@ -23,7 +23,7 @@ class UserInterface:
         test_split = 0.2
         self.model.build_test_sets(test_split)
         self.model.build_model()
-        self.model.train_model(self.model)
+        self.model.train_model()
     
 
 """ Prompts the user for text to enter into the emotion detection model. Prints a list of emotions 
