@@ -14,13 +14,18 @@ from GoEmotions import GoEmotions
 from keras.models import Sequential
 from keras.layers import Dense, LSTM
 from tensorflow.keras.optimizers import RMSprop
+from tensorflow.keras.optimizers import Adam
+#from tensorflow.keras.optimizers import AdamW
+from tensorflow.keras.optimizers import Adadelta
+from tensorflow.keras.optimizers import Adamax
+from tensorflow.keras.optimizers import Adagrad
 import keras
 
 # From Confusion Matrix example (https://stackoverflow.com/questions/2148543/how-to-write-a-confusion-matrix)
 # from sklearn.metrics import confusion_matrix
 
 # Number of comments to use from GoEmotions dataset
-DATASET_SIZE = 10000
+DATASET_SIZE = 1000
 
 """ Manages the Tensorflow neural network model. 
 """
@@ -76,12 +81,15 @@ class Model:
             dropout=dropout_rate)
         )     
 
-        # Output dense layer: Outputs a vector of length 28 with sigmoid activation 
+        # Internal dense layers
+        # self.model.add(Dense(512, activation='sigmoid'))
+
+        # Output dense layer: Outputs a vector of length 28 with softmax activation 
         self.model.add(Dense(emotion_vec_len, activation=self.output_actv))
 
         self.model.compile(
             loss='categorical_crossentropy',
-            optimizer=RMSprop(learning_rate=self.learning_rate),
+            optimizer=Adam(learning_rate=self.learning_rate),
             metrics=['categorical_crossentropy', 'accuracy']
         )
 
@@ -120,6 +128,11 @@ class Model:
     """ Create x training dataset of vectorized comments. 
     """
     def build_train_sets(self):
+        # TEMPORARY
+        emotion_counts = np.zeros(28, dtype=int)
+        avg_num_emotions = 0
+        sum_emotions = 0
+
         print("Building x and y training datasets...")
 
         # Set max dataset size
@@ -174,6 +187,10 @@ class Model:
             # Print debugging message at every 10% interval:
             if ((i % (max / 10)) == 0):
                 print(">>", (i / max) * 100, "% complete ")
+
+            # TEMPORARY: Get histogram of emotion distribution in loaded dataset
+            emotion_counts = np.array(emotion_counts + np.array(emotion_vec))
+            sum_emotions = sum_emotions + np.sum(emotion_vec)
         
         # DEBUG
         # print("First element of x_train:")
@@ -181,6 +198,10 @@ class Model:
 
         # TODO: Why is get_vectorized_str returning blank arrays?
         # Solution: replace [] with empty vec
+
+        print("Emotion counts:", emotion_counts)
+        avg_num_emotions = sum_emotions / max
+        print("Average num emotions:", avg_num_emotions)
 
 
     """ Trains model with x and y training data
@@ -408,19 +429,26 @@ def fine_tune(my_model):
     tests = {}
 
     # Generate test configurations
-    dropout_rate_default = 0.1
-    learning_rate_default = 0.01
-    batch_size_default = 128
-    num_epochs_default = 10
-    bin_threshold_default = 0.0357
-    lstm_size_default = 128
+    # dropout_rate_default = 0.1
+    # learning_rate_default = 0.01
+    # batch_size_default = 128
+    # num_epochs_default = 10
+    # bin_threshold_default = 0.0357
+    # lstm_size_default = 128
 
-    dropout_rate_set = [0.1, 0.3, 0.5]
-    learning_rate_set = [0.01, 0.05, 0.1]
-    batch_size_set = [64, 128, 512]
-    num_epochs_set = [20, 100, 200]
-    bin_threshold_set = [0.0357, 0.1, 0.5]   # 0.0357 = 1/28 
-    lstm_size_set = [128, 1024, 4096]
+    # dropout_rate_set = [0.1, 0.3, 0.5]
+    # learning_rate_set = [0.01, 0.05, 0.1]
+    # batch_size_set = [64, 128, 512]
+    # num_epochs_set = [20, 50, 100]
+    # bin_threshold_set = [0.0357, 0.1, 0.5]   # 0.0357 = 1/28 
+    # lstm_size_set = [128, 1024]
+
+    dropout_rate_set = [0.3]
+    learning_rate_set = [0.0005, 0.001]
+    batch_size_set = [128]
+    num_epochs_set = [10]
+    bin_threshold_set = [0.1]   # 0.0357 = 1/28 
+    lstm_size_set = [1024]
 
     configs = make_test(dropout_rate_set, learning_rate_set, batch_size_set, num_epochs_set, bin_threshold_set, lstm_size_set)
 
@@ -432,7 +460,7 @@ def fine_tune(my_model):
     lines = []
 
     # Test all possible binary threshold rates
-    for config in configs[:300]:
+    for config in configs[:1]:
         print(">>> Config", i, "of", len(configs), "<<<")
         i = i + 1
 
@@ -477,9 +505,10 @@ def fine_tune(my_model):
             file = open('test_output.txt', 'a')
             file.writelines(lines)
             file.close()
+            lines = []
 
             # COOLDOWN
-            time.sleep(120)
+            time.sleep(180)
         
 
     print("Fine-tuning test results:")
