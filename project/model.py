@@ -33,7 +33,7 @@ class Model:
     # Attributes:
 
     # Model building
-    comment_len = 30
+    comment_len = 15
     dropout_rate = 0.1
     lstm_size = 128
     lstm_actv = 'tanh'
@@ -129,9 +129,9 @@ class Model:
     """
     def build_train_sets(self):
         # TEMPORARY
-        emotion_counts = np.zeros(28, dtype=int)
-        avg_num_emotions = 0
-        sum_emotions = 0
+        # emotion_counts = np.zeros(28, dtype=int)
+        # avg_num_emotions = 0
+        # sum_emotions = 0
 
         print("Building x and y training datasets...")
 
@@ -189,8 +189,8 @@ class Model:
                 print(">>", (i / max) * 100, "% complete ")
 
             # TEMPORARY: Get histogram of emotion distribution in loaded dataset
-            emotion_counts = np.array(emotion_counts + np.array(emotion_vec))
-            sum_emotions = sum_emotions + np.sum(emotion_vec)
+            # emotion_counts = np.array(emotion_counts + np.array(emotion_vec))
+            # sum_emotions = sum_emotions + np.sum(emotion_vec)
         
         # DEBUG
         # print("First element of x_train:")
@@ -199,9 +199,9 @@ class Model:
         # TODO: Why is get_vectorized_str returning blank arrays?
         # Solution: replace [] with empty vec
 
-        print("Emotion counts:", emotion_counts)
-        avg_num_emotions = sum_emotions / max
-        print("Average num emotions:", avg_num_emotions)
+        # print("Emotion counts:", emotion_counts)
+        # avg_num_emotions = sum_emotions / max
+        # print("Average num emotions:", avg_num_emotions)
 
 
     """ Trains model with x and y training data
@@ -247,8 +247,13 @@ class Model:
     @staticmethod
     def to_binary(vec):
         # THRESHOLD VALUE: any float greater than or equal to bin_threshold represents a positive identification of that emotion in the sample
-        threshold = Model.bin_threshold
+        # threshold = Model.bin_threshold
+        # binary_vec = list(map(lambda n: int(n >= threshold), vec))
+
+        # METHOD 2: Get single max value:
+        threshold = np.amax(np.array(vec))
         binary_vec = list(map(lambda n: int(n >= threshold), vec))
+        # print("Binary vec:", binary_vec)
         
         return binary_vec
 
@@ -443,12 +448,12 @@ def fine_tune(my_model):
     # bin_threshold_set = [0.0357, 0.1, 0.5]   # 0.0357 = 1/28 
     # lstm_size_set = [128, 1024]
 
-    dropout_rate_set = [0.3]
-    learning_rate_set = [0.0005, 0.001]
+    dropout_rate_set = [0.1]
+    learning_rate_set = [0.001, 0.0005, 0.01, 0.1]
     batch_size_set = [128]
     num_epochs_set = [10]
     bin_threshold_set = [0.1]   # 0.0357 = 1/28 
-    lstm_size_set = [1024]
+    lstm_size_set = [128]
 
     configs = make_test(dropout_rate_set, learning_rate_set, batch_size_set, num_epochs_set, bin_threshold_set, lstm_size_set)
 
@@ -460,7 +465,7 @@ def fine_tune(my_model):
     lines = []
 
     # Test all possible binary threshold rates
-    for config in configs[:1]:
+    for config in configs[:300]:
         print(">>> Config", i, "of", len(configs), "<<<")
         i = i + 1
 
@@ -501,14 +506,14 @@ def fine_tune(my_model):
         lines.append(temp)
 
         # Write line buffer to file
-        if (i % 5 == 0):
+        if (i % 1 == 0):
             file = open('test_output.txt', 'a')
             file.writelines(lines)
             file.close()
             lines = []
 
             # COOLDOWN
-            time.sleep(180)
+            # time.sleep(180)
         
 
     print("Fine-tuning test results:")

@@ -10,7 +10,7 @@ from Token import Token
 NUM_WORDS = 100000
 
 # Maximum length of comment text to process
-MAX_STR_LENGTH = 30
+MAX_STR_LENGTH = 15
 
 """ Handles generation of list of word embeddings from FastText pre-trained embeddings. 
 """
