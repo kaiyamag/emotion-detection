@@ -37,7 +37,7 @@ class Model:
     validation_split = 0.1
     test_split = 0.2
     batch_size = 128
-    num_epochs = 1
+    num_epochs = 50
 
     # Binary threshold
     bin_threshold = 0.1
