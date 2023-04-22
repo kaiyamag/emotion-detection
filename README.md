@@ -1,4 +1,5 @@
-# Jr. I.S. - Emotion Detection in Text with a Long Short Term Memory Model
+# Junior Independent Study - Emotion Detection in Text with a Long Short Term Memory Model
+### Kaiya Magnuson, April 2023
 The goal of this project is to build a machine learning model for emotion detection in short text samples. Through a command-line interface, users enter a sentence of up to 30 words, and the model prints a list of all the emotions identified in the text. A Long Short-Term Memory model is used due to its strength in processing sequence data, such as sentences. The machine learning model is trained on the Google GoEmotions dataset of Reddit comments labelled with emotions and converted to word vectors using transfer learning from the FastText word embedding model. Since Keras provides basic functions for training LSTMs, my software focus was writing data preprocessing functions, experimenting with different model architectures, and writing a function to evaluate the accuracy of the model.
 
 ## Running the Emotion Detection Model
