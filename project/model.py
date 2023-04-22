@@ -210,7 +210,8 @@ class Model:
     """
     def save_model(self, filepath):
         self.model.save(filepath)
-        print("Model saved")
+        print("Model saved. GoEmotions size =", DATASET_SIZE, "Dropout rate =", self.dropout_rate, "Learning rate =", self.learning_rate)
+        print("Batch size =", self.batch_size, "# epochs =", self.num_epochs, "Output threshold =", self.bin_threshold, "LSTM size =", self.lstm_size)
     
 
     """ Converts a prediction vector of floats to a binary vector, for use in F1 score or confusion matrix.
