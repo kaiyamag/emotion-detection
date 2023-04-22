@@ -2,7 +2,7 @@
 The goal of this project is to build a machine learning model for emotion detection in short text samples. Through a command-line interface, users enter a sentence of up to 30 words, and the model prints a list of all the emotions identified in the text. A Long Short-Term Memory model is used due to its strength in processing sequence data, such as sentences. The machine learning model is trained on the Google GoEmotions dataset of Reddit comments labelled with emotions and converted to word vectors using transfer learning from the FastText word embedding model. Since Keras provides basic functions for training LSTMs, my software focus was writing data preprocessing functions, experimenting with different model architectures, and writing a function to evaluate the accuracy of the model.
 
 ## Running the Emotion Detection Model
-The model is initialized and accessed through the `UserInterface` class. Install all dependencies listed in `requirements.txt`. Run `UserInterface.py` and follow prompts in the command-line interface to enter text and recieve emotion predictions. To run unit tests, run `unit_tests.py`, which will print out functions that fail the tests. Model fine-tuning tests can be run by running the main function in `model.py`.
+The model is initialized and accessed through the `UserInterface` class. Install all dependencies listed in `requirements.txt`. Download the FastText word embedding dataset from [Mikolov et al.](https://fasttext.cc/index.html). Update the filepath of the FastText word embeddings dataset the model save location in the `main()` function of `UserInterface.py` and in `unit_tests.py`. Run `UserInterface.py` and follow prompts in the command-line interface to enter text and recieve emotion predictions. To run unit tests, run `unit_tests.py`, which will print out functions that fail the tests. Model fine-tuning tests can be run by running the main function in `model.py`.
 
 ## Class Documentation
 This section explains the role of each class and its functions.
@@ -12,9 +12,13 @@ Manages the user interface for interacting with the LSTM model.
 
 *No class attributes*
 
+**model:** An instance of the `Model` class.
+
+**model_file:** The filepath of the saved Keras model. If given at initialization, that model will be used for the user interface. Otherwise, a new model will be trained according to the hyperparameters in `model.py`.
+
 *Class functions:* 
 
-**init():** Initializes a new `Model` instance, to be used as the primary model for all training and predictions.
+**init(fastText, model_file, train_new):** Initializes a new `Model` instance, to be used as the primary model for all training and predictions. Takes the filepath of the FastText word embedding dataset and False for `model_file` if a new model is being trained, or False for `fastText` and the filepath of the saved Keras model if the model is being loaded from a pre-existing model. If `train_new` is true, trains a new model using `fastText_file` and saves it at `model_file`. If `train_new` is false, loads a pretrained model from `model_file`.
 
 **setup_model(self):** Prepares the model for predictions by loading training datasets, building, and training the model.
 
@@ -46,7 +50,7 @@ Manages the user interface for interacting with the LSTM model.
 
 *Class functions:*
 
-**init():** Defines and intializes class attributes.
+**init(self, fastText, model_file):** Defines and intializes class attributes. Takes the filepath of the FastText word embedding dataset and False for `model_file` if a new model is being trained, or False for `fastText` and the filepath of the saved Keras model if the model is being loaded from a pre-existing model.
 
 **build_model(self):** Creates a new Keras LSTM and compiles it.
 
@@ -55,6 +59,8 @@ Manages the user interface for interacting with the LSTM model.
 **build_train_sets(self):** Creates x training dataset of vectorized comments. 
 
 **train_model(self):** Trains model with x and y training data.
+
+**save_model(self, filepath):** Saves a copy of the trained model at the given filepath.
 
 **get_pred(self, comment_vec):** Gets model prediction for given comment vector of shape (30, 300).
 
@@ -92,7 +98,7 @@ Handles generation of list of word embeddings from FastText pre-trained embeddin
 
 *Class functions:*
 
-**init(self, ft_filename):** Creates a new `InputProcessor` instance from given FastText word embeddings file location. Calls load_vectors.
+**init(self, ft_filename, reload_data):** Creates a new `InputProcessor` instance from given FastText word embeddings file location. Calls load_vectors. If `reload_data` is true, loads FastText word embeddings for model training.
 
 **load_vectors(self):** From FastText documentation. Gets pre-trained word vectors. Populates and returns the vector_data dictionary with words and their corresponding vector representations.
 
@@ -106,6 +112,50 @@ Handles generation of list of word embeddings from FastText pre-trained embeddin
 
 **get_tokenized_str(self):** Gets tokenized string.
 
+
+### GoEmotions
+Stores the loaded GoEmotions database and manages functions to extract data from this dataset.
+
+*Class attributes*
+
+**dataset:** The set of text samples and corresponding emotion labels from the GoEmotions dataset.
+
+*Class functions:* 
+
+**init(self, reload_data):** Creates a new GoEmotions instance. If `reload_data` is true, loads GoEmotions data for model training.
+ 
+**extract_comment(self, index):** Takes an index of this dataset. Returns the comment text of the datapoint at the given index. 
+
+**extract_emotion_vec(self, index):** Takes an index of this dataset. Returns a one-hot encoding of emotion labels for the datapoint at the given index. 
+
+**extract_emotion_from_element(self, element):** Takes an element of this dataset. Returns a one-hot encoding of emotion labels for the datapoint at the given index. 
+
+**get_one_hot_emotions(self, vec):** Returns a list of all emotions present (value of 1) in the given emotion one-hot-encoding vector.
+
+
+### Token
+Represents a single word token.
+
+*Class attributes*
+
+**word:** A string representation of the word stored in this Token
+
+*Class functions:* 
+
+**init(self, word):** Creates a new Token with the given word.
+ 
+**get_word(self):** Returns the string stored in this token.
+
+**repr(self):** Prints a Token as its string representation.
+
+
+### unit_tests.py
+A suite of functions for testing dataset loading. See `unit_tests.py` for specific function documentation
+
+*File functions:* 
+
+**main():** Runs all unit tests in `unit_tests.py`, testing `InputProcessor`, `GoEmotions`, `Token` and some `Model` functions. Prints a summary of which tests were passed. 
+ 
 
 ## Code Citations:
 
