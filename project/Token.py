@@ -9,7 +9,8 @@ class Token:
         self.word = word
 
     
-    # Returns the string stored in this token
+    """ Returns the string stored in this token
+    """
     def get_word(self):
         return self.word
     

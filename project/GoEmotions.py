@@ -13,6 +13,8 @@ class GoEmotions:
     std_length = 28
     
     # Initializer
+    """ Creates a new GoEmotions instance. If `reload_data` is true, loads GoEmotions data for model training.
+    """
     def __init__(self, reload_data):
         if (reload_data):
             self.dataset = tf_datasets.load('goemotions', split='train')
