@@ -15,14 +15,7 @@ from keras.models import Sequential
 from keras.layers import Dense, LSTM
 from tensorflow.keras.optimizers import RMSprop
 from tensorflow.keras.optimizers import Adam
-#from tensorflow.keras.optimizers import AdamW
-from tensorflow.keras.optimizers import Adadelta
-from tensorflow.keras.optimizers import Adamax
-from tensorflow.keras.optimizers import Adagrad
 import keras
-
-# From Confusion Matrix example (https://stackoverflow.com/questions/2148543/how-to-write-a-confusion-matrix)
-# from sklearn.metrics import confusion_matrix
 
 # Number of comments to use from GoEmotions dataset
 DATASET_SIZE = 1000
@@ -38,7 +31,7 @@ class Model:
     lstm_size = 128
     lstm_actv = 'tanh'
     output_actv = 'softmax'
-    learning_rate = 0.01
+    learning_rate = 0.0005
 
     # Model training
     validation_split = 0.1
@@ -47,7 +40,7 @@ class Model:
     num_epochs = 1
 
     # Binary threshold
-    bin_threshold = 0.0357
+    bin_threshold = 0.1
 
     # Initializer
     def __init__(self):
@@ -80,9 +73,6 @@ class Model:
             activation=self.lstm_actv,
             dropout=dropout_rate)
         )     
-
-        # Internal dense layers
-        # self.model.add(Dense(512, activation='sigmoid'))
 
         # Output dense layer: Outputs a vector of length 28 with softmax activation 
         self.model.add(Dense(emotion_vec_len, activation=self.output_actv))
@@ -128,11 +118,6 @@ class Model:
     """ Create x training dataset of vectorized comments. 
     """
     def build_train_sets(self):
-        # TEMPORARY
-        # emotion_counts = np.zeros(28, dtype=int)
-        # avg_num_emotions = 0
-        # sum_emotions = 0
-
         print("Building x and y training datasets...")
 
         # Set max dataset size
@@ -151,24 +136,14 @@ class Model:
             comment_text = self.input_processor.tokenize(comment_text)
             comment_vec = self.input_processor.get_vectorized_str(comment_text)
 
-            # DEBUG
-            # print("comment:", element)
-            # print("\nvec:", np.array(comment_vec))
-
             # Initialize x_train with first comment vec. Ensures all dataset elements have same numpy shape
             if (i == 0):
                 self.x_train = np.array(comment_vec)[np.newaxis, :, :]
             
             # Add next vectorized comment to dataset
             else:
-                #a = np.array(self.x_train)
                 b = np.array(comment_vec)[np.newaxis, :, :]
                 self.x_train = np.concatenate((self.x_train, b), axis=0)
-
-                # DEBUG
-                # print("------ i: ", i, "--------")
-                # print("a shape: ", a.shape)
-                # print("b shape: ", b.shape)
             
             # ---------- Y TRAIN ------------
             emotion_vec = self.ge.extract_emotion_from_element(element)
@@ -179,29 +154,9 @@ class Model:
                 b = np.array(emotion_vec)[np.newaxis, :]
                 self.y_train = np.concatenate((self.y_train, b), axis=0)
 
-                # DEBUG
-                # print("------ i: ", i, "--------")
-                # print("y_train shape: ", self.y_train.shape)
-                # print("b shape: ", b.shape)
-
             # Print debugging message at every 10% interval:
             if ((i % (max / 10)) == 0):
                 print(">>", (i / max) * 100, "% complete ")
-
-            # TEMPORARY: Get histogram of emotion distribution in loaded dataset
-            # emotion_counts = np.array(emotion_counts + np.array(emotion_vec))
-            # sum_emotions = sum_emotions + np.sum(emotion_vec)
-        
-        # DEBUG
-        # print("First element of x_train:")
-        # print(self.x_train[1])
-
-        # TODO: Why is get_vectorized_str returning blank arrays?
-        # Solution: replace [] with empty vec
-
-        # print("Emotion counts:", emotion_counts)
-        # avg_num_emotions = sum_emotions / max
-        # print("Average num emotions:", avg_num_emotions)
 
 
     """ Trains model with x and y training data
@@ -253,8 +208,7 @@ class Model:
         # METHOD 2: Get single max value:
         threshold = np.amax(np.array(vec))
         binary_vec = list(map(lambda n: int(n >= threshold), vec))
-        # print("Binary vec:", binary_vec)
-        
+       
         return binary_vec
 
     """ Calculates a F1 score for the predicted emotions. Takes a list of emotion predictions as vectors
@@ -269,13 +223,6 @@ class Model:
         # False Positives = # of comments that had a predicted emotion of x, but the test data did not have that emotion
         # False Negatives = # of comments that did not have a predicted emotion of x, but the test data did have that emotion
 
-        # For prediction in y_pred
-            # Look at corresponding expected y from y_test.
-                # If expected[n] and prediction[n] are both 1, true_pos++
-                # If only prediction[n] is 1, false_pos++
-                # If expected[n] and prediction[n] are both 0, true_neg++
-                # If only prediction[n] is 0, false_neg++
-        
         true_pos = 0
         false_pos = 0
         true_neg = 0
@@ -329,39 +276,6 @@ class Model:
         return f1_score
 
 
-    """ Prints a confusion matrix from expected output and actual output
-    """
-    # def print_confusion_mat(self):
-    #     print("Confusion matrix:")
-
-    #     # Suggestion from https://stackoverflow.com/questions/48987959/classification-metrics-cant-handle-a-mix-of-continuous-multioutput-and-multi-la
-    #     # argmax isn't relevant here: it gets the index of the maximum value in a numpy array
-    #     # TODO: Better define what a "correct" output is
-    #     #adj_y_test = np.argmax(self.y_test, axis=1)
-    #     adj_y_test = self.y_test
-
-    #     # Convert all predictions in y_pred to binary
-    #     #adj_y_pred = np.argmax(self.y_pred, axis=1)
-    #     adj_y_pred = []
-
-    #     for pred in self.y_pred:
-    #         adj_y_pred.append(self.to_binary(pred))
-        
-    #     adj_y_pred = np.array(adj_y_pred)
-
-    #     # DEBUG
-    #     print("adjusted y_test shape:", adj_y_test.shape)
-    #     print("adjusted y_pred shape:", adj_y_pred.shape)
-    #     print("adjusted y_test:", adj_y_test)
-    #     print("adjusted y_pred:", adj_y_pred)
-
-    #     # mat = confusion_matrix(self.y_test, self.y_pred)
-    #     mat = confusion_matrix(adj_y_test, adj_y_pred)
-    #     print(mat)
-
-    #     return mat
-
-
 """ Tests model functions.
 """
 def main():
@@ -388,39 +302,6 @@ def main():
 
     fine_tune(my_model)
 
-    # my_model.build_model()
-    # print("\n\nDone building model")
-    # print(my_model.model.summary())
-
-    # my_model.train_model(my_model)
-    # print("Done training model")
-
-    # # Make comment vector for prediction testing
-    # str = "I am excited to eat pie"
-    # tokenized_str = my_model.input_processor.tokenize(str)
-    # comment_vec = my_model.input_processor.get_vectorized_str(tokenized_str)
-    # comment_vec = np.array(comment_vec)[np.newaxis, :, :]
-    # print("Comment: '", str, "' shape:", np.array(comment_vec).shape)
-
-    # pred = my_model.get_pred(comment_vec)
-    # print("Done getting prediction")
-
-    # print("Prediction shape:", np.array(pred).shape)
-    # print("Prediction:", pred)
-
-    # my_model.test_model()
-    # print("Done testing model, y_pred shape", my_model.y_pred.shape)
-    # print("y_pred array:", my_model.y_pred)
-
-    # binary_vec = Model.to_binary(my_model.y_pred[1])
-    # print("Binary vec of size", len(binary_vec), ":", binary_vec)
-
-    # # my_model.print_confusion_mat()
-
-    # f1_score = Model.calculate_F1(my_model.y_pred, my_model.y_test)
-    # print("F1 score:", f1_score)
-
-
 
 """ Runs hardcoded parameter fine tuning tests on many variations of the model.
 Prints F1-score and parameter configurations for each test in 'test_output.txt'
@@ -432,21 +313,6 @@ def fine_tune(my_model):
     file.close()
 
     tests = {}
-
-    # Generate test configurations
-    # dropout_rate_default = 0.1
-    # learning_rate_default = 0.01
-    # batch_size_default = 128
-    # num_epochs_default = 10
-    # bin_threshold_default = 0.0357
-    # lstm_size_default = 128
-
-    # dropout_rate_set = [0.1, 0.3, 0.5]
-    # learning_rate_set = [0.01, 0.05, 0.1]
-    # batch_size_set = [64, 128, 512]
-    # num_epochs_set = [20, 50, 100]
-    # bin_threshold_set = [0.0357, 0.1, 0.5]   # 0.0357 = 1/28 
-    # lstm_size_set = [128, 1024]
 
     dropout_rate_set = [0.1]
     learning_rate_set = [0.001, 0.0005, 0.01, 0.1]
@@ -470,19 +336,6 @@ def fine_tune(my_model):
         i = i + 1
 
         # Update model configuration
-
-        # comment_len
-        # dropout_rate
-        # lstm_size
-        # lstm_actv
-        # output_actv
-        # learning_rate
-        # validation_split
-        # test_split
-        # batch_size
-        # num_epochs
-        # bin_threshold 
-
         my_model.dropout_rate = config['dropout_rate']
         my_model.learning_rate = config['learning_rate']
         my_model.batch_size = config['batch_size']
@@ -490,7 +343,6 @@ def fine_tune(my_model):
         my_model.bin_threshold = config['bin_threshold']
         my_model.lstm_size = config['lstm_size']
 
-        # params = {'dropout_rate': my_model.dropout_rate, 'learning_rate': my_model.learning_rate, 'batch_size': my_model.batch_size, 'num_epochs': my_model.num_epochs, 'bin_threshold': my_model.bin_threshold}
         params = config
 
         # Build, train, and test model
@@ -506,14 +358,16 @@ def fine_tune(my_model):
         lines.append(temp)
 
         # Write line buffer to file
-        if (i % 1 == 0):
+        buffer_len = 1
+        cooldown = 0
+        if (i % buffer_len == 0):
             file = open('test_output.txt', 'a')
             file.writelines(lines)
             file.close()
             lines = []
 
             # COOLDOWN
-            # time.sleep(180)
+            time.sleep(cooldown)
         
 
     print("Fine-tuning test results:")
