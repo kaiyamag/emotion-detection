@@ -43,16 +43,26 @@ class Model:
     bin_threshold = 0.1
 
     # Initializer
-    def __init__(self):
-        self.filename = "C:\\Users\\aeble\\Documents\\CS_200_Projects\\Junior_IS\\wiki-news-300d-1M.vec"
+    def __init__(self, fastText, model_file):
+        if (model_file):
+            reload_data = False
+        else:
+            reload_data = True
+
+        self.filename = fastText
         self.x_train = []
         self.y_train = []
         self.x_test = []
         self.y_test = []
         self.y_pred = []
-        self.ge = GoEmotions()
-        self.input_processor = InputProcessor(self.filename)
-        self.model = Sequential()
+        self.ge = GoEmotions(reload_data)
+        self.input_processor = InputProcessor(self.filename, reload_data)
+
+        # Load saved model if applicable
+        if (model_file):
+            self.model = keras.models.load_model(model_file)
+        else:
+            self.model = Sequential()
     
 
     """ Creates a new Keras LSTM and compiles it. Function from ANN Course example
@@ -196,6 +206,13 @@ class Model:
         return self.y_pred
     
 
+    """ Saves trained model at specified file location.
+    """
+    def save_model(self, filepath):
+        self.model.save(filepath)
+        print("Model saved")
+    
+
     """ Converts a prediction vector of floats to a binary vector, for use in F1 score or confusion matrix.
     Takes a vector of floats as input and returns a vector of the same length of 1's and 0's.
     """
@@ -279,7 +296,8 @@ class Model:
 """ Tests model functions.
 """
 def main():
-    my_model = Model()
+    fastText = "C:\\Users\\aeble\\Documents\\CS_200_Projects\\Junior_IS\\wiki-news-300d-1M.vec"
+    my_model = Model(fastText, False)
     print("Done initializing model")
 
     my_model.build_train_sets()
@@ -302,6 +320,8 @@ def main():
 
     fine_tune(my_model)
 
+    my_model.save_model("C:\\Users\\aeble\\Documents\\CS_200_Projects\\Junior_IS\\emotion-detection\\model")
+
 
 """ Runs hardcoded parameter fine tuning tests on many variations of the model.
 Prints F1-score and parameter configurations for each test in 'test_output.txt'
@@ -315,9 +335,9 @@ def fine_tune(my_model):
     tests = {}
 
     dropout_rate_set = [0.1]
-    learning_rate_set = [0.001, 0.0005, 0.01, 0.1]
+    learning_rate_set = [ 0.0005]
     batch_size_set = [128]
-    num_epochs_set = [10]
+    num_epochs_set = [50]
     bin_threshold_set = [0.1]   # 0.0357 = 1/28 
     lstm_size_set = [128]
 

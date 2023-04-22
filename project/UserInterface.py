@@ -11,8 +11,8 @@ from model import Model
 """
 class UserInterface:
     # Initializer
-    def __init__(self):
-        self.model = Model()
+    def __init__(self, filepath, model_file):
+        self.model = Model(filepath, model_file)
     
 
     """ Prepares the model for predictions by loading training datasets, building, and training the model.
@@ -33,9 +33,15 @@ def main():
     print("Welcome to the LSTM model for detecting emotion in text!")
     print("Loading model...")
 
-    ui = UserInterface()
+    fastText_file = "C:\\Users\\aeble\\Documents\\CS_200_Projects\\Junior_IS\\wiki-news-300d-1M.vec"
+    model_file = "C:\\Users\\aeble\\Documents\\CS_200_Projects\\Junior_IS\\emotion-detection\\model"
+
+    ui = UserInterface(fastText_file, model_file)
     my_model = ui.model
-    ui.setup_model()
+
+    # Train model if no saved model was loaded
+    if (not model_file):
+        ui.setup_model()
 
     prompt = "Please enter a sentence between 1 and 30 words or press 'q' to quit:\n"
     take_input = True

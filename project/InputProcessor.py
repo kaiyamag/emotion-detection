@@ -24,9 +24,11 @@ class InputProcessor:
     std_length = 300    # Length of FastText word embedding
 
     # Initializer
-    def __init__(self, ft_filename):
+    def __init__(self, ft_filename, reload_data):
         self.ft_filename = ft_filename
-        self.load_vectors()
+
+        if (reload_data):
+            self.load_vectors()
     
 
     """ From FastText documentation. Gets pre-trained word vectors. Populates and returns the vector_data dictionary with 

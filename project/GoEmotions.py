@@ -13,8 +13,9 @@ class GoEmotions:
     std_length = 28
     
     # Initializer
-    def __init__(self):
-        self.dataset = tf_datasets.load('goemotions', split='train')
+    def __init__(self, reload_data):
+        if (reload_data):
+            self.dataset = tf_datasets.load('goemotions', split='train')
     
 
     """ Takes an index of this dataset. Returns the comment text of the datapoint at the given index. 
