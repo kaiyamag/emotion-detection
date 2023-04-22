@@ -1,3 +1,6 @@
+# GoEmotions.py
+# Kaiya Magnuson, April 2023
+
 import tensorflow as tf
 import tensorflow_datasets as tf_datasets
 from itertools import islice

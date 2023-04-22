@@ -1,3 +1,5 @@
+# Token.py
+# Kaiya Magnuson, April 2023
 
 """ This class represents a single word token. 
 """
