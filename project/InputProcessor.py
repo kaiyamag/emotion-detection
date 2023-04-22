@@ -1,13 +1,16 @@
+# InputProcessor.py
+# Kaiya Magnuson, April 2023
+
 import io
 import numpy as np
 from Token import Token
 
 # Number of word vectors to grab from pre-trained vectors. 
 # Limited to 100,000 for debugging
-NUM_WORDS = 100000
+NUM_WORDS = 500000
 
 # Maximum length of comment text to process
-MAX_STR_LENGTH = 30
+MAX_STR_LENGTH = 15
 
 """ Handles generation of list of word embeddings from FastText pre-trained embeddings. 
 """
@@ -18,13 +21,17 @@ class InputProcessor:
     vector_data = {}    # A dictionary where the key is a string and the value is a list of floats (300-D vector)
     tokenized_str = []  # A list of tokens corresponding to comment text
 
+    std_length = 300    # Length of FastText word embedding
+
     # Initializer
-    def __init__(self, ft_filename):
+    def __init__(self, ft_filename, reload_data):
         self.ft_filename = ft_filename
-        self.load_vectors()
+
+        if (reload_data):
+            self.load_vectors()
     
 
-    """From FastText documentation. Gets pre-trained word vectors. Populates and returns the vector_data dictionary with 
+    """ From FastText documentation. Gets pre-trained word vectors. Populates and returns the vector_data dictionary with 
     words and their corresponding vector representations.
     """
     def load_vectors(self):
@@ -53,7 +60,7 @@ class InputProcessor:
         return self.vector_data
 
 
-    """Returns a 300-D vector (as a list) of floats corresponding to the given word. If the word does not exist in the 
+    """ Returns a 300-D vector (as a list) of floats corresponding to the given word. If the word does not exist in the 
     dictionary, returns a list of 0's
     """
     def get_vector(self, token):
@@ -63,24 +70,15 @@ class InputProcessor:
         if (word in self.vector_data):
             fetched_vec = list(self.vector_data[word])      # Must convert map object to list before accessing
             
-            # DEBUG
-            # print("Got word:", fetched_vec, "from token", word)
-
-            # TODO: Ongoing bug: Even if word is in dictionary, it can fetch [] as the vector.
-            # This workaround replaces all [] vectors with zeroes/empty vectors
             if (len(fetched_vec) != 0):
                 return fetched_vec
 
-        #print("Creating empty")
-        # TODO: Should this return an empty list or a random vector? (check literature)
+        # Return an empty vector for out-of-vocabulary words
         empty = []
-        for i in range(300):
+        for i in range(self.std_length):
             empty.append(0.0)
 
         return empty
-
-        # TODO: Figure out why words not in first 10k are grabbed and == []
-        # vector_data is an unsliceable dictionary
 
 
     """ Takes a list of up to MAX_STR_LENGTH Tokens. Populates and returns vectorized_str, a list of vector 
@@ -95,15 +93,12 @@ class InputProcessor:
                 vec = self.get_vector(token)
                 self.vectorized_str.append(vec)
                 strlen = strlen + 1
-
-                # DEBUG
-                #print("Token:", token, ", vector:", vec[:10])
             else:
                 break
 
         # Make empty 300-D vector    
         empty = []
-        for i in range(300):
+        for i in range(self.std_length):
             empty.append(0.0)
         
         # Fill remaining list spots with empty vectors, up to capacity of MAX_STR_LENGTH

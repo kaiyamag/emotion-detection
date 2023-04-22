@@ -1,3 +1,5 @@
+# Token.py
+# Kaiya Magnuson, April 2023
 
 """ This class represents a single word token. 
 """
@@ -9,7 +11,8 @@ class Token:
         self.word = word
 
     
-    # Returns the string stored in this token
+    """ Returns the string stored in this token
+    """
     def get_word(self):
         return self.word
     

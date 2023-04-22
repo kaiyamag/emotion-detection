@@ -1,3 +1,6 @@
+# GoEmotions.py
+# Kaiya Magnuson, April 2023
+
 import tensorflow as tf
 import tensorflow_datasets as tf_datasets
 from itertools import islice
@@ -10,9 +13,14 @@ class GoEmotions:
     dataset = []
     master_emotions = ['admiration',  'amusement',  'anger', 'annoyance', 'approval', 'caring', 'confusion', 'curiosity',  'desire', 'disappointment', 'disapproval',  'disgust', 'embarrassment',  'excitement',  'fear', 'gratitude',  'grief', 'joy',  'love', 'nervousness', 'neutral', 'optimism', 'pride', 'realization', 'relief', 'remorse',  'sadness',  'surprise']
     
+    std_length = 28
+    
     # Initializer
-    def __init__(self):
-        self.dataset = tf_datasets.load('goemotions', split='train')
+    """ Creates a new GoEmotions instance. If `reload_data` is true, loads GoEmotions data for model training.
+    """
+    def __init__(self, reload_data):
+        if (reload_data):
+            self.dataset = tf_datasets.load('goemotions', split='train')
     
 
     """ Takes an index of this dataset. Returns the comment text of the datapoint at the given index. 
@@ -70,7 +78,7 @@ class GoEmotions:
 
         # Check for invalid input
         if (not (len(vec) == len(self.master_emotions))):
-            print("Length of given vector (", len(vec), "does not equal number of emotions", len(self.master_emotions))
+            print("Length of given vector (", len(vec), ") does not equal number of emotions (", len(self.master_emotions), ")")
             return None
 
         emotions = []

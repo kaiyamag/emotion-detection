@@ -1,3 +1,6 @@
+# unit_tests.py
+# Kaiya Magnuson, April 2023
+
 from InputProcessor import InputProcessor
 from Token import Token
 from GoEmotions import GoEmotions
@@ -22,7 +25,7 @@ def main():
     # Test functions that take an input processor as input
     test_input_processor_functions = [test_load_vectors, test_get_vectorized_string]
     filename = "C:\\Users\\aeble\\Documents\\CS_200_Projects\\Junior_IS\\wiki-news-300d-1M.vec"
-    processor = InputProcessor(filename)
+    processor = InputProcessor(filename, True)
 
     for func in test_input_processor_functions:
         print("------ Testing", func.__name__, "------")
@@ -34,7 +37,7 @@ def main():
     
     # Test functions that take a GoEmotions model as input
     test_ge_model_functions = [test_comment_extraction, test_emotion_vec_extraction, test_get_one_hot_emotions]
-    test_ge_model = GoEmotions()
+    test_ge_model = GoEmotions(True)
 
     for func in test_ge_model_functions:
         print("------ Testing", func.__name__, "------")
@@ -46,7 +49,7 @@ def main():
     
     # Test functions that take a LSTM model as input
     test_model_functions = [test_to_binary]
-    model = Model()
+    model = Model(filename, "C:\\Users\\aeble\\Documents\\CS_200_Projects\\Junior_IS\\emotion-detection\\model", True)
 
     for func in test_model_functions:
         print("------ Testing", func.__name__, "------")
@@ -64,7 +67,7 @@ def main():
 """
 def test_InputProcessor():
     filename = "C:\\Users\\aeble\\Documents"
-    processor = InputProcessor(filename)
+    processor = InputProcessor(filename, True)
     if (processor.ft_filename == filename):
         return True 
     else: 

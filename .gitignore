@@ -27,6 +27,9 @@ Latest commit 8e67b94 on Feb 20, 2022
 @arcresu@shiftkey@jwg4@astrojuanlu@GabrielC101@misaelnieto@pmsosa@svkampen@vltr@thedrow@matheussl@Lucretiel
 160 lines (131 sloc)  3.01 KB
 
+# Testing files
+test_output.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
