@@ -18,7 +18,7 @@ from tensorflow.keras.optimizers import Adam
 import keras
 
 # Number of comments to use from GoEmotions dataset
-DATASET_SIZE = 1000
+DATASET_SIZE = 40000
 
 """ Manages the Tensorflow neural network model. 
 """

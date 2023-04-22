@@ -13,7 +13,7 @@ class UserInterface:
     # Initializer
     def __init__(self, fastText, model_file, train_new):
         self.model_file = model_file
-        
+
         if (train_new):
             self.model = Model(fastText, False)
             self.setup_model()
@@ -49,7 +49,7 @@ def main():
     model_file = "C:\\Users\\aeble\\Documents\\CS_200_Projects\\Junior_IS\\emotion-detection\\model"
 
     # train_new: Set to true to train a new model and save at `model_file`, set to false to use model saved at `model_file`
-    train_new = False
+    train_new = True
 
     # ----------------------------------------------------------------
 
