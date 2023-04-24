@@ -15,10 +15,11 @@ from keras.models import Sequential
 from keras.layers import Dense, LSTM
 from tensorflow.keras.optimizers import RMSprop
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adamax
 import keras
 
 # Number of comments to use from GoEmotions dataset
-DATASET_SIZE = 40000
+DATASET_SIZE = 1000
 
 """ Manages the Tensorflow neural network model. 
 """
@@ -89,7 +90,7 @@ class Model:
 
         self.model.compile(
             loss='categorical_crossentropy',
-            optimizer=Adam(learning_rate=self.learning_rate),
+            optimizer=Adamax(learning_rate=self.learning_rate),
             metrics=['categorical_crossentropy', 'accuracy']
         )
 
@@ -335,12 +336,12 @@ def fine_tune(my_model):
 
     tests = {}
 
-    dropout_rate_set = [0.1]
+    dropout_rate_set = [0.1, 0.3, 0.5]
     learning_rate_set = [ 0.0005]
     batch_size_set = [128]
-    num_epochs_set = [50]
+    num_epochs_set = [50, 100]
     bin_threshold_set = [0.1]   # 0.0357 = 1/28 
-    lstm_size_set = [128]
+    lstm_size_set = [128, 1024]
 
     configs = make_test(dropout_rate_set, learning_rate_set, batch_size_set, num_epochs_set, bin_threshold_set, lstm_size_set)
 

@@ -7,7 +7,7 @@ from Token import Token
 
 # Number of word vectors to grab from pre-trained vectors. 
 # Limited to 100,000 for debugging
-NUM_WORDS = 500000
+NUM_WORDS = 100000
 
 # Maximum length of comment text to process
 MAX_STR_LENGTH = 15
