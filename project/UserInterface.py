@@ -49,7 +49,7 @@ def main():
     model_file = "C:\\Users\\aeble\\Documents\\CS_200_Projects\\Junior_IS\\emotion-detection\\model"
 
     # train_new: Set to true to train a new model and save at `model_file`, set to false to use model saved at `model_file`
-    train_new = True
+    train_new = False
 
     # ----------------------------------------------------------------
 
